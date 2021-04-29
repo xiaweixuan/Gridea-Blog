@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="http://xiawx.top/favicon.ico?v=1619697233327">
+<link rel="shortcut icon" href="http://xiawx.top/favicon.ico?v=1619714073904">
 <link rel="stylesheet" href="http://xiawx.top/styles/main.css">
 
 
@@ -18,8 +18,7 @@
 
 
 
-    <meta name="description" content="。。
-" />
+    <meta name="description" content="前几天收到了阿里云的信息，提示我的服务器又双叒叕该续费了，但是作为一个即将毕业的人来说，这服务器的费用似乎又让我本不富裕的生活雪上加霜。而我的服务器目前最大的用途，基本就是作为我个人主页的载体，其他的价值似乎并不大，所以，经过考虑，最终还是..." />
     <meta name="keywords" content="blog" />
   </head>
   <body>
@@ -29,7 +28,7 @@
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="http://xiawx.top">
-        <img src="http://xiawx.top/images/avatar.png?v=1619697233327" class="site-logo">
+        <img src="http://xiawx.top/images/avatar.png?v=1619714073904" class="site-logo">
         <h1 class="site-title">Wix</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -105,7 +104,40 @@
               </div>
             
             <div class="post-content" v-pre>
-              <p>。。</p>
+              <p>前几天收到了阿里云的信息，提示我的服务器又双叒叕该续费了，但是作为一个即将毕业的人来说，这服务器的费用似乎又让我本不富裕的生活雪上加霜。而我的服务器目前最大的用途，基本就是作为我个人主页的载体，其他的价值似乎并不大，所以，经过考虑，最终还是决定将主页下掉，取而用静态博客代之。</p>
+<p>在上网搜查了一些静态博客的生成工具，最终选择了Gridea。原因是因为他有一个比较好的客户端去协助丰富你的博客，相比其他工具，Gridea的可视化做的较为突出。此外配合七牛云去做图床，使用PicGo去配合图片上传处理，让你能够更专注于文章的创作。</p>
+<h4 id="github仓库的配置">Github仓库的配置</h4>
+<p>新建一个仓库，完成后点开Settings页面，点击此处设置github Pages<br>
+<img src="http://resource.xiawx.top/20210429232948.png" alt="设置github pages" loading="lazy"><br>
+进入后更改Source的分支内容并保存<br>
+<img src="http://resource.xiawx.top/20210429233117.png" alt="更改Source" loading="lazy"></p>
+<h4 id="密钥生成">密钥生成</h4>
+<p>点击<a href="https://github.com/settings/tokens/new">此处</a>生成一个token，Note处可以随便填写，用来记住此token的用途的话，然后勾选repo选项<br>
+<img src="http://resource.xiawx.top/20210429231813.png" alt="创建token页面" loading="lazy"><br>
+在此页面复制刚刚创建完的密钥，然后保存到某处，后面会用到</p>
+<blockquote>
+<p>此页面关闭后将无法再看到此密钥</p>
+</blockquote>
+<h4 id="gridea的安装">Gridea的安装</h4>
+<p>首先，我们进入<a href="https://gridea.dev/">Gridea的主页</a>去下载对应操作系统的客户端。<br>
+打开客户端，在远程的菜单中配置基本设置。另外则填写刚刚保存的密钥<br>
+<img src="http://resource.xiawx.top/20210430001031.png" alt="设置页面" loading="lazy"><br>
+如果你是用自定义域名则将在域名和CNAME处填写自己的域名。此时的域名需要是一个CNAME类型的指向你github仓库的域名。<br>
+<img src="http://resource.xiawx.top/20210430001949.png" alt="域名" loading="lazy"><br>
+<img src="http://resource.xiawx.top/20210429233428.png" alt="设置页面" loading="lazy"><br>
+配置完成后，即可点击保存。点击菜单栏中的预览会在本地打开服务供预览，同步将会上传到github中。</p>
+<h4 id="七牛云的图床使用">七牛云的图床使用</h4>
+<p>七牛云的存储管理给你免费的提供文件资源的存储管理，我们可以将写文章用到的图片上传到此处，然后通过外链的形式在文章中使用。<br>
+在创建并认证完成后，点击对象存储模块下的空间管理，新建一个空间。此时可以看到他会给我们一个临时域名，我们仍然可以将它替换为自己的域名。首先点击域名管理<br>
+<img src="http://resource.xiawx.top/20210430002305.png" alt="域名管理" loading="lazy">输入要绑定的域名例如resource.xiawx.top，然后确认后会出现一个让你映射的地址。<br>
+然后去创建你的二级域名，要和之前在绑定的相同（此处为resource.xiawx.top），类型为CNAME，记录值为刚刚七牛云给到的。配置完成后等待片刻即可使用了。<br>
+至此，我们上传到七牛云的图片已经可以用我们自己的域名访问了。</p>
+<h4 id="配置picgo方便上传图片">配置PicGo方便上传图片</h4>
+<p>如何将本地文件在写文章的时候快速上传至七牛云又是一个新的问题，PicGo便帮我们解决了这个问题。<br>
+在<a href="https://github.com/Molunerfinn/PicGo/releases">此处</a>下载PicGo到你的pc端，此处Mac要下载dmg文件。（以下讲解已Mac为例）<br>
+下载完成后，系统可能默认阻止他的打开，这个可以根据提示去设置中取消阻止。之后，会在你的上边栏出现一个图片，将图片拖动到此处即可完成图片的上传，当然，前提是我们要规定它往哪里上传。右击点开它，打开详细窗口，点击七牛图床，填写相关信息。相关信息可在七牛云点击头像出现菜单中的密钥管理中找到。<br>
+设置完成后，我们可以将图片直接拖动到此图标处完成上传，并且上传后直接复制外链可供粘贴。</p>
+<p>以上便是对Gridea使用的一些总结。</p>
 
             </div>
             
