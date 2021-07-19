@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>流式播放器的实现原理 | Wix</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="http://xiawx.top/favicon.ico?v=1626664715578">
+<link rel="stylesheet" href="http://xiawx.top/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="现如今，在web对视频、音频有了更多更详细的开发需求后，简单的使用audio标签已经不足以满足生产需求了，所以在日常工作中，常常会需要自行去封装播放器，本文将来对流式播放器做一个简单的实现。
+在实现之前需要对一些简单的概念进行了解。
+流式播..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="http://xiawx.top">
+        <img src="http://xiawx.top/images/avatar.png?v=1626664715578" class="site-logo">
+        <h1 class="site-title">Wix</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            Articles
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            Tag
+          </a>
+        
+      
+        
+          <a href="http://note.xiawx.top" class="site-nav" target="_blank">
+            Note
+          </a>
+        
+      
+        
+          <a href="https://xiaweixuan.github.io/resume/index.pdf" class="site-nav" target="_blank">
+            Resume
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            About
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/xiaweixuan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The best decisions are made without thinking
+    </div>
+    <div class="site-footer">
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span> | <a class="rss" href="http://xiawx.top/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">流式播放器的实现原理</h2>
+            <div class="post-date">2021-07-19</div>
+            
+            <div class="post-content" v-pre>
+              <p>现如今，在web对视频、音频有了更多更详细的开发需求后，简单的使用audio标签已经不足以满足生产需求了，所以在日常工作中，常常会需要自行去封装播放器，本文将来对流式播放器做一个简单的实现。</p>
+<p>在实现之前需要对一些简单的概念进行了解。</p>
+<h4 id="流式播放器">流式播放器</h4>
+<p>在一些常见的业务场景中，例如TTS（文本转语音），在前端输入一段文字，在后端将文字转为语音并传回前端，前端再将语音通过audio标签呈现出来。但是通常语音生成的过程是漫长的，如果后端将语音全部生成后再返回给前端，这样会有一个很长的等待期，用户体验较差，所以通常选择使用流式播放器。即后端生成一点，就向前端传输一点，直到整个音频全部转化完成。</p>
+<h4 id="htmlmediaelement">HTMLMediaElement</h4>
+<p><code>HTMLMediaElement</code> 接口继承了 <code>HTMLElement</code>，并在此基础上添加了支持音频和视频共有的基本媒体相关功能所需的属性和方法。 <code>HTMLVideoElement</code>和 <code>HTMLAudioElement</code>元素都继承此接口。</p>
+<h4 id="domstring">DOMString</h4>
+<p><code>DOMString</code>是一个UTF-16字符串。但实际上，JavaScript正是使用了这种编码的字符串，所以可以理解为<code>DOMString</code>就是<code>String</code></p>
+<h4 id="arraybuffer-与-buffer">ArrayBuffer 与 Buffer</h4>
+<p><code>ArrayBuffer</code>对象用来表示通用的、固定长度的原始二进制数据缓冲区。</p>
+<p>但不能直接操作<code>ArrayBuffer</code> 的内容，后面会说到可以使用方法将它进行转换。</p>
+<pre><code class="language-javascript">const buffer = new ArrayBuffer(8);
+console.log(buffer.byteLength);
+// expected output: 8
+</code></pre>
+<p><code>Buffer</code> 是 Node.JS 中用于操作 <code>ArrayBuffer</code> 的视图，是 <code>TypedArray</code>的一种。当创建了一个 <code>Buffer</code> 对象后，可以通过Buffer对象的 <code>buffer</code> 属性来直接访问其对应的 <code>ArrayBuffer</code> 对象</p>
+<h4 id="mse">MSE</h4>
+<p>媒体源扩展 API（MSE），提供了实现无插件且基于 Web 的流媒体的功能。使用 MSE，媒体串流能够通过<code>JavaScript</code> 创建，并且能通过使用<code>audio</code>或<code>video</code>元素进行播放。</p>
+<p>MSE 使我们可以把通常的单个媒体文件的 <code>src</code> 值替换成引用 <code>MediaSource</code> 对象（一个包含即将播放的媒体文件的准备状态等信息的容器），以及引用多个 <code>SourceBuffer</code> 对象（代表多个组成整个串流的不同媒体块）的元素。</p>
+<p>简单来说，MSE是W3C所规定的规范，这个规范规范了多个<code>api</code>的作用，通过这些<code>api</code>我们可以更好的去操作流媒体。各个浏览器也都纷纷实现了它。他的常用API如下（下面还会想起介绍）：</p>
+<ul>
+<li>MediaSource：能够被<code>HTMLMediaElement</code>对象识别的媒体资源。</li>
+<li>SourceBuffer：代表了一个媒体块，<code>MediaSource</code> 对象中可以包含了多个媒体块，例如一个视频资源中可能会包括音频、影像、文本这三个媒体块。而这些媒体块将被传入<code>HTMLMediaElement</code></li>
+<li>SourceBufferList：列出多个 <code>SourceBuffer</code> 对象的简单的容器列表。</li>
+</ul>
+<h4 id="urlcreateobjecturl">URL.createObjectURL</h4>
+<p><code>URL.createObjectURL()</code>静态方法创建一个<code>DOMString</code>，它包含一个表示 <strong>作为参数传入的对象</strong> 的URL。这个 URL 的存在时间，等同于网页的存在时间，一旦网页刷新或卸载，这个 URL 就失效。参数可传入<code>File</code>，<code>Blob</code>或<code>MediaSource</code>对象。</p>
+<p>与此对应的使用<code>URL.revokeObjectURL()</code>来释放对象。</p>
+<pre><code class="language-javascript">// 将创建一个超链接，点击后下载一个名为a.txt的文件，内容为 A piece of text
+var blob = new Blob([&quot;A piece of text&quot;]);
+var a = document.createElement(&quot;a&quot;);
+a.href = URL.createObjectURL(blob);
+a.download = &quot;a.txt&quot;;
+a.textContent = &quot;Download&quot;;
+</code></pre>
+<h4 id="实现原理">实现原理</h4>
+<p>与传统的方法将视频链接赋值给audio的src属性不同，这里的方式是将MediaSource对象附着在audio标签上。MediaSource中包含一个或多个媒体块（sourceBuffer），audio对象则会实时解析这些媒体块中的多个媒体段（arrayBuffer）。通过向媒体块中不断添加媒体段从而实现实时加载的功能。</p>
+<h4 id="实现过程">实现过程</h4>
+<p>将MediaSource和audio联系起来</p>
+<pre><code class="language-javascript">var mediaSource = new MediaSource;
+video.src = URL.createObjectURL(mediaSource);
+// console.log(mediaSource.readyState) close
+mediaSource.addEventListener('sourceopen', sourceOpen);
+</code></pre>
+<blockquote>
+<p>一个 mediaSource 被实例化后，有三种状态。1、还没有被附着到一个media元素上（close）2、已经附着准备接受SourceBuffer对象了（open）3、亦或者这个流已经被关闭了（ended）</p>
+<p>Eg：此处的close、open、ended是状态名，并不是对应的事件名</p>
+</blockquote>
+<p>其中<code>video.src = URL.createObjectURL(mediaSource)</code>并不会立刻将mediaSource附着到video标签上，这是一个异步操作，所以此刻的status仍然是close。此时要进行一个事件监听，在mediaSource附着完成后会触发sourceopen事件，此时我们才能继续下面的步骤。</p>
+<p>在成功将mediaSource附着后，URL.createObjectURL的任务已经达到了，所以我们可以将它销毁了。紧接着我们要创建一个mediaSource下面的媒体块，也就是sourceBuffer。</p>
+<pre><code class="language-javascript">var mediaSource = new MediaSource;
+video.src = URL.createObjectURL(mediaSource);
+// console.log(mediaSource.readyState) close
+mediaSource.addEventListener('sourceopen', sourceOpen);
+
+let sourceBuffer;
+function sourceOpen() {
+  URL.revokeObjectURL(audio.src);
+  sourceBuffer = mediaSource.addSourceBuffer('audio/mpeg');
+}
+</code></pre>
+<p>在sourceBuffer准备好了之后，我们就可以向里面去添加Buffer块了，此处的Buffer也就是后端传来的，因为我们需要模拟一个不断向前端传输数据的服务，所以我们用websocket来模拟这个服务。</p>
+<pre><code class="language-javascript">const fs = require('fs');
+const WebSocket = require('ws');
+
+const wss = new WebSocket.Server({ port: 5000 });
+const buffer = fs.readFileSync('test1.mp3');
+wss.on('connection', function connection(ws) {
+  let index = 0;
+
+  const id = setInterval(() =&gt; {
+    if (index &lt; buffer.length) {
+      ws.send(buffer.slice(index, index + 24 * 1024));
+
+      index += 24 * 1024;      
+    } else {
+      clearInterval(id);
+
+      wss.close();
+    }
+  }, 500);
+});
+</code></pre>
+<p>该服务会每隔0.5秒向前端推一个数据块。</p>
+<p>所以我们在前端接收它。</p>
+<pre><code class="language-javascript">const webSocket = new WebSocket('ws://localhost:5000');
+
+webSocket.addEventListener('message', add);
+webSocket.addEventListener('close', end);
+</code></pre>
+<p>每次收到后端发来的服务的时候，将传来的数据块加入到sourceBuffer中，并在全部传输结束后，断开它。</p>
+<pre><code class="language-javascript">async function add(event) {
+  if(!event.data) return
+  const buffer = await event.data.arrayBuffer()
+  sourceBuffer.appendBuffer(buffer)
+}
+
+function end() {
+  mediaSource.endOfStream()
+}
+</code></pre>
+<blockquote>
+<p>sourceBuffer.appendBuffer() 可以将媒体截图添加到 SourceBuffer 对象中，其中媒体截图包括<code>ArrayBuffer</code>或 <code>ArrayBufferView</code>对象存储。</p>
+<p>后端传过来data是Blob类型数据，要通过blob.arrayBuffer()将它转为arrayBuffer的格式才能被sourceBuffer.appendBuffer() 接收。</p>
+</blockquote>
+<p>至此，结束。代码如下：</p>
+<pre><code class="language-javascript">const audio = document.getElementById('audio');
+const webSocket = new WebSocket('ws://localhost:5000');
+const mediaSource = new MediaSource();
+let sourceBuffer;
+
+audio.src = URL.createObjectURL(mediaSource);
+mediaSource.addEventListener('sourceopen', function () {
+  URL.revokeObjectURL(audio.src);
+  sourceBuffer = mediaSource.addSourceBuffer('audio/mpeg');
+});
+
+webSocket.addEventListener('message', add);
+webSocket.addEventListener('close', end);
+
+async function add(event) {
+  if(!event.data) return
+  const buffer = await event.data.arrayBuffer()
+  sourceBuffer.appendBuffer(buffer)
+}
+
+function end() {
+  mediaSource.endOfStream()
+}
+</code></pre>
+<h4 id="问题发现">问题发现</h4>
+<p>现在，让我们找一下他的问题，现在后端每0.5s会向前端推一个数据，而传到前短后的sourceBuffer.appendBuffer是一个异步操作，如果这个时间过于快，就会出现同时执行两个add方法，那么就会出现一次append操作还没有完成就开始了下一次，就会出现音频错乱的现象。</p>
+<p>为了解决这个问题，首先我们将异步方法进行一个抽离。</p>
+<pre><code class="language-javascript">let blobQueue = [];
+
+webSocket.addEventListener('message', add);
+
+async function addBuffer(blob) {
+  const buffer = await blob.arrayBuffer();
+  sourceBuffer.appendBuffer(buffer)
+}
+
+function add(event) {
+  if(!event.data) return;
+  addBuffer(event.data)
+}
+</code></pre>
+<p>因为将异步当法放在事件监听的回调中，我们无法保证他们依次执行，所以，我们在websocket监听到message事件之后，先不进行buffer类型的转换（即异步操作），而是将该blob加入到一个队列。</p>
+<pre><code class="language-javascript">let blobQueue = [];
+
+webSocket.addEventListener('message', add);
+
+async function addBuffer() {
+  if(!blobQueue.length) return;
+  const blob = blobQueue.shift();
+  const buffer = await blob.arrayBuffer();
+  sourceBuffer.appendBuffer(buffer)
+}
+
+function add(event) {
+  if(!event.data) return;
+  blobQueue.push(event.data);
+}
+</code></pre>
+<p>现在，每调用一次addBuffer方法，会取出一个队列中的blob进行操作。现在我们在add中调用他</p>
+<pre><code class="language-javascript">let blobQueue = [];
+
+webSocket.addEventListener('message', add);
+
+async function addBuffer() {
+  if(!blobQueue.length) return;
+  const blob = blobQueue.shift();
+  const buffer = await blob.arrayBuffer();
+  sourceBuffer.appendBuffer(buffer)
+}
+
+function add(event) {
+  if(!event.data) return;
+  blobQueue.push(event.data);
+  addBuffer();
+}
+</code></pre>
+<p>目前还是会出现下面的情况，就是在websocket频繁收到数据时，会同时触发多个add方法，也就会同时执行多个addBuffer方法，所以，我们加一个锁，来保证在一个时刻，只能执行一个addBuffer方法。</p>
+<pre><code class="language-javascript">lock = false;
+
+async function addBuffer() {
+  if (lock) return;
+  if(!blobQueue.length) return;
+  lock = true;
+  const blob = blobQueue.shift();
+  const buffer = await blob.arrayBuffer();
+  sourceBuffer.appendBuffer(buffer)
+  lock = false;
+}
+</code></pre>
+<p>这样一来，加入websocket以很短的间隔同时发送了5个blob，事件监听到会同时执行五个add方法，但只有第一个add方法中调用的addBuffer方法会执行。但是这样，我们相当于只把一个buffer加入到sourceBuffer中，其他四个虽然加入了blobQueue中，但并未执行addBuffer方法。但是事件监听只会触发五次，触发完成后将不会再触发，所以，我们要在sourceBuffer添加完一次buffer后，再次调用addBuffer方法。</p>
+<blockquote>
+<p>可以通过sourceBuffer.updating方法获取现在是否在执行appendBuffer方法。</p>
+<p>sourceBuffer的事件</p>
+<ul>
+<li>onabort：每当<code>sourceBuffer.appendBuffer</code>或者<code>sourceBuffer.appendStream</code>方法调用结束时触发</li>
+<li>onerror：在<code>sourceBuffer.appendBuffer</code>期间发生错误时触发</li>
+<li>onupdate：当<code>sourceBuffer.appendBuffer</code>或者<code>sourceBuffer.remove</code>完成时调用</li>
+<li>onupdateend：每当<code>sourceBuffer.appendBuffer</code>或者<code>sourceBuffer.remove</code>方法调用结束时触发</li>
+<li>onupdatestart：在<code>sourceBuffer.updating</code>的值从false到true时触发</li>
+</ul>
+<p>onupdate与onupdateend的区别在于onupdate只在调用成功时触发，而updateend不管成功与否都会被调用</p>
+</blockquote>
+<pre><code class="language-javascript">sourceBuffer.addEventListener('updateend', addBuffer);
+</code></pre>
+<p>在执行结束后再一次调用addBuffer方法。</p>
+<p>最后，在websocket结束触发close事件的时候，可能我们还没有完成blobQueue内所有blob的添加，所以，我们不能立刻关闭mediaSource，而是要判断blob队列</p>
+<pre><code class="language-javascript">function end() {
+  const id = setInterval(() =&gt; {
+    if(blobQueue.length !== 0 || lock !== false) return;
+    mediaSource.endOfStream()
+    clearInterval(id);
+  }, 0); 
+}
+</code></pre>
+<p>至此，结束，全部代码如下</p>
+<pre><code class="language-javascript">const audio = document.getElementById('audio');
+const webSocket = new WebSocket('ws://localhost:5000');
+const mediaSource = new MediaSource();
+let sourceBuffer;
+let blobQueue = [];
+let lock = false;
+
+async function addBuffer() {
+  if (lock) return;
+  if (!sourceBuffer) return;
+  if (!blobQueue.length) return;
+  if (sourceBuffer.updating) return;
+  lock = true;
+  const blob = blobQueue.shift();
+  const buffer = await blob.arrayBuffer();
+  sourceBuffer.appendBuffer(buffer)
+  lock = false;
+}
+
+audio.src = URL.createObjectURL(mediaSource);
+mediaSource.addEventListener('sourceopen', function () {
+  URL.revokeObjectURL(audio.src);
+  sourceBuffer = mediaSource.addSourceBuffer('audio/mpeg');
+  sourceBuffer.addEventListener('updateend', addBuffer);
+});
+
+webSocket.addEventListener('message', add);
+webSocket.addEventListener('close', end);
+
+function add(event) {
+  if(!event.data) return;
+  blobQueue.push(event.data);
+  addBuffer()
+}
+
+function end() {
+  const id = setInterval(() =&gt; {
+    if(blobQueue.length !== 0 || lock !== false) return;
+    mediaSource.endOfStream()
+    clearInterval(id);
+  }, 0);
+}
+</code></pre>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="http://xiawx.top/post/81FQtowJ8/">
+                  <h3 class="post-title">
+                    《悬崖之上》影评
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

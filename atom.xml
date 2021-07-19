@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>http://xiawx.top</id>
     <title>Wix</title>
-    <updated>2021-04-30T01:07:09.447Z</updated>
+    <updated>2021-07-19T03:19:02.663Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="http://xiawx.top"/>
     <link rel="self" href="http://xiawx.top/atom.xml"/>
@@ -10,6 +10,27 @@
     <logo>http://xiawx.top/images/avatar.png</logo>
     <icon>http://xiawx.top/favicon.ico</icon>
     <rights>All rights reserved 2021, Wix</rights>
+    <entry>
+        <title type="html"><![CDATA[流式播放器的实现原理]]></title>
+        <id>http://xiawx.top/post/9KaQODQMY/</id>
+        <link href="http://xiawx.top/post/9KaQODQMY/">
+        </link>
+        <updated>2021-07-19T03:14:59.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[《悬崖之上》影评]]></title>
+        <id>http://xiawx.top/post/81FQtowJ8/</id>
+        <link href="http://xiawx.top/post/81FQtowJ8/">
+        </link>
+        <updated>2021-05-16T15:23:12.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[在Node环境中使用ES Module]]></title>
+        <id>http://xiawx.top/post/CNru9mFfe/</id>
+        <link href="http://xiawx.top/post/CNru9mFfe/">
+        </link>
+        <updated>2021-05-09T03:38:41.000Z</updated>
+    </entry>
     <entry>
         <title type="html"><![CDATA[使用Gridea创建静态博客]]></title>
         <id>http://xiawx.top/post/a52hNOZem/</id>
