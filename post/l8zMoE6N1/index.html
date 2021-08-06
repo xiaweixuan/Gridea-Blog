@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>设计模式在前端开发中的应用 一（创建型） | Wix</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="http://xiawx.top/favicon.ico?v=1628217506224">
+<link rel="stylesheet" href="http://xiawx.top/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="什么是设计模式
+假如你是一个视频博主，你有一个粉丝还算不少的账号，现在让你想一种通过这个账号盈利的方式你会想到什么？插入广告，这可能是你最先想到（什么？不是最先想到？那就前几种想到的）方法。如今在视频、公众号环境中，打广告已经成了非常普遍的..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="http://xiawx.top">
+        <img src="http://xiawx.top/images/avatar.png?v=1628217506224" class="site-logo">
+        <h1 class="site-title">Wix</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/tag/aJjMPrl2v/" class="site-nav">
+            Blog
+          </a>
+        
+      
+        
+          <a href="/tag/M1N5NOEJB/" class="site-nav">
+            Life
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            Tag
+          </a>
+        
+      
+        
+          <a href="http://note.xiawx.top" class="site-nav" target="_blank">
+            Note
+          </a>
+        
+      
+        
+          <a href="https://xiaweixuan.github.io/resume/index.pdf" class="site-nav" target="_blank">
+            Resume
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            About
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/xiaweixuan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The best decisions are made without thinking
+    </div>
+    <div class="site-footer">
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span> | <a class="rss" href="http://xiawx.top/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">设计模式在前端开发中的应用 一（创建型）</h2>
+            <div class="post-date">2021-07-21</div>
+            
+              <div class="feature-container" style="background-image: url('http://xiawx.top/post-images/l8zMoE6N1.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <h4 id="什么是设计模式">什么是设计模式</h4>
+<p>假如你是一个视频博主，你有一个粉丝还算不少的账号，现在让你想一种通过这个账号盈利的方式你会想到什么？插入广告，这可能是你最先想到（什么？不是最先想到？那就前几种想到的）方法。如今在视频、公众号环境中，打广告已经成了非常普遍的现象了，这是一种非常容易复现的变现手段，任何人都可以相对轻松的拿到盈利。当然，对于短视频广告形式也在不断发展，为保证商务与流量共同发展，广告也从最早的品牌广告、贴片广告转变为现在的最多的软广（植入广告），让用户的接受度渐渐变高，同时也渐渐也形成了广告模式在短视频中的应用。对于一个新的博主，在逐渐增长粉丝后，能够很快的通过这种模式（植入广告）来实现变现。</p>
+<p>这就是生活中常见的模式，模式是做一件事的行动方式。例如我为了通过做短视频实现变现，从而使用广告模式。模式在一次次成功典例中被总结下来，为下一次行为的开始打下良好基础。生活中的模式无处不在。</p>
+<p>于此同理，在软件开发经历了石烂海枯之后，也渐渐针对某些常见问题形成了一些固有的套路（解决方案），那么这些方案就被称为软件设计模式。</p>
+<p>其实，思想是我们解决问题的所具备的基本素养，在这其中，也是没有专业之分的。就好像最早的软件设计模式实则源于建筑。</p>
+<p>一名叫<a href="https://zh.wikipedia.org/wiki/%E5%85%8B%E9%87%8C%E6%96%AF%E6%89%98%E4%BD%9B%C2%B7%E4%BA%9A%E5%8E%86%E5%B1%B1%E5%A4%A7">克里斯托佛·亚历山大</a>的建筑师在1977年编制了一本汇集<strong>设计模式</strong>的书，但是这种设计模式的思想在建筑设计领域里的影响远没有后来在软件开发领域里传播的广泛。</p>
+<p><a href="https://zh.wikipedia.org/wiki/%E8%82%AF%E7%89%B9%C2%B7%E8%B2%9D%E5%85%8B">肯特·贝克</a>和<a href="https://zh.wikipedia.org/wiki/%E6%B2%83%E5%BE%B7%C2%B7%E5%9D%8E%E5%AE%81%E5%AE%89">沃德·坎宁安</a>在1987年，利用这本书中的思想开发了<em>设计模式</em>，并把此思想应用在Smalltalk中的图形用户接口（GUI）的生成中。</p>
+<p>一年后，<a href="https://zh.wikipedia.org/wiki/%E5%9F%83%E9%87%8C%E5%B8%8C%C2%B7%E4%BC%BD%E7%91%AA">埃里希·伽玛</a>在他的<a href="https://zh.wikipedia.org/wiki/%E8%8B%8F%E9%BB%8E%E4%B8%96%E5%A4%A7%E5%AD%A6">苏黎世大学</a>博士毕业论文中开始尝试把这种思想改写为适用于软件开发。</p>
+<p>与此同时James Coplien 在1989年至1991年也在利用相同的思想致力于C++的开发，而后于1991年发表了他的著作<em>Advanced C++ Programming Styles and Idioms</em>。</p>
+<p>同年，Erich Gamma 得到了博士学位，然后去了美国，在那与Richard Helm、Ralph Johnson、John Vlissides 合作出版了《<a href="https://zh.wikipedia.org/wiki/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%EF%BC%9A%E5%8F%AF%E5%A4%8D%E7%94%A8%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E8%BD%AF%E4%BB%B6%E7%9A%84%E5%9F%BA%E7%A1%80">设计模式：可复用面向对象软件的基础</a>》一书，在此书中共收录了 23 种<strong>设计模式</strong>。而这四位作者在软件开发领域里也以“四人帮”而闻名。</p>
+<p>尽管我们常说设计模式有23种，但随着技术的发展，对于问题的最佳实践也不止这23种，而后也有新的设计模式被提出，但就像我们最初说的，设计模式是为了解决问题而产生的，只要我们还在思考，就会有新的模式被提出。所以，对于模式的学习，更重要的，是对问题的理解。</p>
+<h4 id="23种设计模式">23种设计模式</h4>
+<p>创建型：类的创建</p>
+<ul>
+<li>工厂方法模式</li>
+<li>抽象工厂</li>
+<li>构造器模式</li>
+<li>单例模式</li>
+<li>原型模式</li>
+</ul>
+<p>组合型：多个类的组合形式</p>
+<ul>
+<li>适配器模式</li>
+<li>装饰器模式</li>
+<li>代理模式</li>
+<li>外观模式</li>
+<li>桥接模式</li>
+<li>组合模式</li>
+<li>享元模式</li>
+</ul>
+<p>行为型：常用行为</p>
+<ul>
+<li>策略模式</li>
+<li>模版方法模式</li>
+<li>观察者模式</li>
+<li>迭代器模式</li>
+<li>指责链模式</li>
+<li>命令模式</li>
+<li>回忆模式</li>
+<li>状态模式</li>
+<li>参观者模式</li>
+<li>中介者模式</li>
+<li>翻译器模式</li>
+</ul>
+<h4 id="前端中的设计模式">前端中的设计模式</h4>
+<p>为什么前端要学设计模式？设计模式在前端应用在什么地方？如果你会有这种想法，那么请继续看下去吧。</p>
+<p>你对前端工作的印象如何，如果只是使用Vue+Element去进行表单、表格的堆积的话，那么你可能很难接触到更多的设计模式。那是因为，在现如今的前端社区中已经帮我们解决了大部分的逻辑需求，我们开箱即用，无需懂得其中的原理即可完成业务工作。但前端的工作远不止这些，在设计更为复杂的业务或者抛离这些高级框架后，更加考验的，便是解决问题的思路与模式。开发不是一定为了使用所谓的设计模式，这不过是在历史开发长河中，留存下来的优秀思想，而我们应该专注的应该是工作本身。</p>
+<p>开发模式提供了我们一种通过代码解决某种特定问题的方式，在将设计模式引入前端后，也应该根据语言和业务场景的不同而稍作改变，因为它目的，就是为了找到问题的最佳实践。</p>
+
+            </div>
+            
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>
