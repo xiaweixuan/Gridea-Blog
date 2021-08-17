@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" >
+
+<head>
+  <meta charset="utf-8" >
 
 <title>设计模式在前端开发中的应用 一（创建型） | Wix</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="http://xiawx.top/favicon.ico?v=1629179774981">
+<link rel="shortcut icon" href="http://xiawx.top/favicon.ico?v=1629183520212">
 <link rel="stylesheet" href="http://xiawx.top/styles/main.css">
 
 
@@ -22,20 +23,24 @@
 <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
+<!-- 添加评论所需 -->
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
 
 
-    <meta name="description" content="什么是设计模式
+
+  <meta name="description" content="什么是设计模式
 假如你是一个视频博主，你有一个粉丝还算不少的账号，现在让你想一种通过这个账号盈利的方式你会想到什么？插入广告，这可能是你最先想到（什么？不是最先想到？那就前几种想到的）方法。如今在视频、公众号环境中，打广告已经成了非常普遍的..." />
-    <meta name="keywords" content="" />
-  </head>
-  <body>
-    <div id="app" class="main">
+  <meta name="keywords" content="" />
+</head>
 
-      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+<body>
+  <div id="app" class="main">
+
+    <div class="sidebar" :class="{ 'full-height': menuVisible }">
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="http://xiawx.top">
-        <img src="http://xiawx.top/images/avatar.png?v=1629179774981" class="site-logo">
+        <img src="http://xiawx.top/images/avatar.png?v=1629183520212" class="site-logo">
         <h1 class="site-title">Wix</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -111,17 +116,17 @@
 </div>
 
 
-      <div class="main-container">
-        <div class="content-container" data-aos="fade-up">
-          <div class="post-detail">
-            <h2 class="post-title">设计模式在前端开发中的应用 一（创建型）</h2>
-            <div class="post-date">2021-07-21</div>
-            
-              <div class="feature-container" style="background-image: url('http://xiawx.top/post-images/l8zMoE6N1.jpg')">
-              </div>
-            
-            <div class="post-content" v-pre>
-              <h4 id="什么是设计模式">什么是设计模式</h4>
+    <div class="main-container">
+      <div class="content-container" data-aos="fade-up">
+        <div class="post-detail">
+          <h2 class="post-title">设计模式在前端开发中的应用 一（创建型）</h2>
+          <div class="post-date">2021-07-21</div>
+          
+          <div class="feature-container" style="background-image: url('http://xiawx.top/post-images/l8zMoE6N1.jpg')">
+          </div>
+          
+          <div class="post-content" v-pre>
+            <h4 id="什么是设计模式">什么是设计模式</h4>
 <p>假如你是一个视频博主，你有一个粉丝还算不少的账号，现在让你想一种通过这个账号盈利的方式你会想到什么？插入广告，这可能是你最先想到（什么？不是最先想到？那就前几种想到的）方法。如今在视频、公众号环境中，打广告已经成了非常普遍的现象了，这是一种非常容易复现的变现手段，任何人都可以相对轻松的拿到盈利。当然，对于短视频广告形式也在不断发展，为保证商务与流量共同发展，广告也从最早的品牌广告、贴片广告转变为现在的最多的软广（植入广告），让用户的接受度渐渐变高，同时也渐渐也形成了广告模式在短视频中的应用。对于一个新的博主，在逐渐增长粉丝后，能够很快的通过这种模式（植入广告）来实现变现。</p>
 <p>这就是生活中常见的模式，模式是做一件事的行动方式。例如我为了通过做短视频实现变现，从而使用广告模式。模式在一次次成功典例中被总结下来，为下一次行为的开始打下良好基础。生活中的模式无处不在。</p>
 <p>于此同理，在软件开发经历了石烂海枯之后，也渐渐针对某些常见问题形成了一些固有的套路（解决方案），那么这些方案就被称为软件设计模式。</p>
@@ -170,25 +175,34 @@
 <p>你对前端工作的印象如何，如果只是使用Vue+Element去进行表单、表格的堆积的话，那么你可能很难接触到更多的设计模式。那是因为，在现如今的前端社区中已经帮我们解决了大部分的逻辑需求，我们开箱即用，无需懂得其中的原理即可完成业务工作。但前端的工作远不止这些，在设计更为复杂的业务或者抛离这些高级框架后，更加考验的，便是解决问题的思路与模式。开发不是一定为了使用所谓的设计模式，这不过是在历史开发长河中，留存下来的优秀思想，而我们应该专注的应该是工作本身。</p>
 <p>开发模式提供了我们一种通过代码解决某种特定问题的方式，在将设计模式引入前端后，也应该根据语言和业务场景的不同而稍作改变，因为它目的，就是为了找到问题的最佳实践。</p>
 
-            </div>
-            
-            
-
-            
-              
-
-              
-                <div id="disqus_thread" data-aos="fade-in"></div>
-              
-            
-
           </div>
+          
+
+          <!-- id 将作为查询条件 -->
+          <!-- <span id="设计模式在前端开发中的应用 一（创建型）" class="leancloud_visitors" data-flag-title="Your Article Title">
+            <em class="post-meta-item-text">阅读量 </em>
+            <i class="leancloud-visitors-count">1000000</i>
+          </span> -->
+          <!-- 添加评论所需 -->
+          <div id="vcomments"></div>
+
+          
+
+          
+          
+
+          
+          <div id="disqus_thread" data-aos="fade-in"></div>
+          
+          
 
         </div>
+
       </div>
     </div>
+  </div>
 
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+  <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
 <script type="application/javascript">
 
 AOS.init();
@@ -232,5 +246,44 @@ var app = new Vue({
 
 
 
-  </body>
+
+  <!-- 添加评论所需 -->
+  <script>
+    var valine = new Valine();
+    valine.init({
+      el: '#vcomments',
+      appId: 'wsDl3brWkUlHBKaNxb21veD5-gzGzoHsz',
+      appKey: 'VmdAqVf9EYbFvHrSBU4dXhNh',
+      // visitor: true // 阅读量统计
+      // 设置Bilibili表情包地址
+      emojiCDN: '//i0.hdslb.com/bfs/emote/',
+      // 表情title和图片映射
+      emojiMaps: {
+        "tv_doge": "6ea59c827c414b4a2955fe79e0f6fd3dcd515e24.png",
+        "tv_亲亲": "a8111ad55953ef5e3be3327ef94eb4a39d535d06.png",
+        "tv_偷笑": "bb690d4107620f1c15cff29509db529a73aee261.png",
+        "tv_再见": "180129b8ea851044ce71caf55cc8ce44bd4a4fc8.png",
+        "tv_冷漠": "b9cbc755c2b3ee43be07ca13de84e5b699a3f101.png",
+        "tv_发怒": "34ba3cd204d5b05fec70ce08fa9fa0dd612409ff.png",
+        "tv_发财": "34db290afd2963723c6eb3c4560667db7253a21a.png",
+        "tv_可爱": "9e55fd9b500ac4b96613539f1ce2f9499e314ed9.png",
+        "tv_吐血": "09dd16a7aa59b77baa1155d47484409624470c77.png",
+        "tv_呆": "fe1179ebaa191569b0d31cecafe7a2cd1c951c9d.png",
+        "tv_呕吐": "9f996894a39e282ccf5e66856af49483f81870f3.png",
+        "tv_困": "241ee304e44c0af029adceb294399391e4737ef2.png",
+        "tv_坏笑": "1f0b87f731a671079842116e0991c91c2c88645a.png",
+        "tv_大佬": "093c1e2c490161aca397afc45573c877cdead616.png",
+        "tv_大哭": "23269aeb35f99daee28dda129676f6e9ea87934f.png",
+        "tv_委屈": "d04dba7b5465779e9755d2ab6f0a897b9b33bb77.png",
+        "tv_害羞": "a37683fb5642fa3ddfc7f4e5525fd13e42a2bdb1.png",
+        "tv_尴尬": "7cfa62dafc59798a3d3fb262d421eeeff166cfa4.png",
+        "tv_微笑": "70dc5c7b56f93eb61bddba11e28fb1d18fddcd4c.png",
+        "tv_思考": "90cf159733e558137ed20aa04d09964436f618a1.png",
+        "tv_惊吓": "0d15c7e2ee58e935adc6a7193ee042388adc22af.png",
+        // ... 更多表情
+      }
+    })
+  </script>
+</body>
+
 </html>

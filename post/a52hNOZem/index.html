@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" >
+
+<head>
+  <meta charset="utf-8" >
 
 <title>使用Gridea创建静态博客 | Wix</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="http://xiawx.top/favicon.ico?v=1629179774981">
+<link rel="shortcut icon" href="http://xiawx.top/favicon.ico?v=1629183520212">
 <link rel="stylesheet" href="http://xiawx.top/styles/main.css">
 
 
@@ -22,19 +23,23 @@
 <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
+<!-- 添加评论所需 -->
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
 
 
-    <meta name="description" content="前几天收到了阿里云的信息，提示我的服务器又双叒叕该续费了，但是作为一个即将毕业的人来说，这服务器的费用似乎又让我本不富裕的生活雪上加霜。而我的服务器目前最大的用途，基本就是作为我个人主页的载体，其他的价值似乎并不大，所以，经过考虑，最终还是..." />
-    <meta name="keywords" content="blog" />
-  </head>
-  <body>
-    <div id="app" class="main">
 
-      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <meta name="description" content="前几天收到了阿里云的信息，提示我的服务器又双叒叕该续费了，但是作为一个即将毕业的人来说，这服务器的费用似乎又让我本不富裕的生活雪上加霜。而我的服务器目前最大的用途，基本就是作为我个人主页的载体，其他的价值似乎并不大，所以，经过考虑，最终还是..." />
+  <meta name="keywords" content="blog" />
+</head>
+
+<body>
+  <div id="app" class="main">
+
+    <div class="sidebar" :class="{ 'full-height': menuVisible }">
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="http://xiawx.top">
-        <img src="http://xiawx.top/images/avatar.png?v=1629179774981" class="site-logo">
+        <img src="http://xiawx.top/images/avatar.png?v=1629183520212" class="site-logo">
         <h1 class="site-title">Wix</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -110,17 +115,17 @@
 </div>
 
 
-      <div class="main-container">
-        <div class="content-container" data-aos="fade-up">
-          <div class="post-detail">
-            <h2 class="post-title">使用Gridea创建静态博客</h2>
-            <div class="post-date">2021-04-29</div>
-            
-              <div class="feature-container" style="background-image: url('http://resource.xiawx.top/20210429194738.jpeg')">
-              </div>
-            
-            <div class="post-content" v-pre>
-              <p>前几天收到了阿里云的信息，提示我的服务器又双叒叕该续费了，但是作为一个即将毕业的人来说，这服务器的费用似乎又让我本不富裕的生活雪上加霜。而我的服务器目前最大的用途，基本就是作为我个人主页的载体，其他的价值似乎并不大，所以，经过考虑，最终还是决定将主页下掉，取而用静态博客代之。</p>
+    <div class="main-container">
+      <div class="content-container" data-aos="fade-up">
+        <div class="post-detail">
+          <h2 class="post-title">使用Gridea创建静态博客</h2>
+          <div class="post-date">2021-04-29</div>
+          
+          <div class="feature-container" style="background-image: url('http://resource.xiawx.top/20210429194738.jpeg')">
+          </div>
+          
+          <div class="post-content" v-pre>
+            <p>前几天收到了阿里云的信息，提示我的服务器又双叒叕该续费了，但是作为一个即将毕业的人来说，这服务器的费用似乎又让我本不富裕的生活雪上加霜。而我的服务器目前最大的用途，基本就是作为我个人主页的载体，其他的价值似乎并不大，所以，经过考虑，最终还是决定将主页下掉，取而用静态博客代之。</p>
 <p>在上网搜查了一些静态博客的生成工具，最终选择了Gridea。原因是因为他有一个比较好的客户端去协助丰富你的博客，相比其他工具，Gridea的可视化做的较为突出。此外配合七牛云去做图床，使用PicGo去配合图片上传处理，让你能够更专注于文章的创作。</p>
 <h4 id="github仓库的配置">Github仓库的配置</h4>
 <p>新建一个仓库，完成后点开Settings页面，点击此处设置github Pages<br>
@@ -155,42 +160,51 @@
 设置完成后，我们可以将图片直接拖动到此图标处完成上传，并且上传后直接复制外链可供粘贴。</p>
 <p>以上便是对Gridea使用的一些总结。</p>
 
-            </div>
-            
-              <div class="tag-container">
-                
-                  <a href="http://xiawx.top/tag/aJjMPrl2v/" class="tag">
-                    blog
-                  </a>
-                
-              </div>
-            
-            
-              <div class="next-post">
-                <div class="next">下一篇</div>
-                <a href="http://xiawx.top/post/ne_inj6wt/">
-                  <h3 class="post-title">
-                    《正义联盟》的逆袭
-                  </h3>
-                </a>
-              </div>
-            
-
-            
-              
-
-              
-                <div id="disqus_thread" data-aos="fade-in"></div>
-              
-            
-
           </div>
+          
+          <div class="tag-container">
+            
+            <a href="http://xiawx.top/tag/aJjMPrl2v/" class="tag">
+              blog
+            </a>
+            
+          </div>
+          
+
+          <!-- id 将作为查询条件 -->
+          <!-- <span id="使用Gridea创建静态博客" class="leancloud_visitors" data-flag-title="Your Article Title">
+            <em class="post-meta-item-text">阅读量 </em>
+            <i class="leancloud-visitors-count">1000000</i>
+          </span> -->
+          <!-- 添加评论所需 -->
+          <div id="vcomments"></div>
+
+          
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="http://xiawx.top/post/ne_inj6wt/">
+              <h3 class="post-title">
+                《正义联盟》的逆袭
+              </h3>
+            </a>
+          </div>
+          
+
+          
+          
+
+          
+          <div id="disqus_thread" data-aos="fade-in"></div>
+          
+          
 
         </div>
+
       </div>
     </div>
+  </div>
 
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+  <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
 <script type="application/javascript">
 
 AOS.init();
@@ -234,5 +248,44 @@ var app = new Vue({
 
 
 
-  </body>
+
+  <!-- 添加评论所需 -->
+  <script>
+    var valine = new Valine();
+    valine.init({
+      el: '#vcomments',
+      appId: 'wsDl3brWkUlHBKaNxb21veD5-gzGzoHsz',
+      appKey: 'VmdAqVf9EYbFvHrSBU4dXhNh',
+      // visitor: true // 阅读量统计
+      // 设置Bilibili表情包地址
+      emojiCDN: '//i0.hdslb.com/bfs/emote/',
+      // 表情title和图片映射
+      emojiMaps: {
+        "tv_doge": "6ea59c827c414b4a2955fe79e0f6fd3dcd515e24.png",
+        "tv_亲亲": "a8111ad55953ef5e3be3327ef94eb4a39d535d06.png",
+        "tv_偷笑": "bb690d4107620f1c15cff29509db529a73aee261.png",
+        "tv_再见": "180129b8ea851044ce71caf55cc8ce44bd4a4fc8.png",
+        "tv_冷漠": "b9cbc755c2b3ee43be07ca13de84e5b699a3f101.png",
+        "tv_发怒": "34ba3cd204d5b05fec70ce08fa9fa0dd612409ff.png",
+        "tv_发财": "34db290afd2963723c6eb3c4560667db7253a21a.png",
+        "tv_可爱": "9e55fd9b500ac4b96613539f1ce2f9499e314ed9.png",
+        "tv_吐血": "09dd16a7aa59b77baa1155d47484409624470c77.png",
+        "tv_呆": "fe1179ebaa191569b0d31cecafe7a2cd1c951c9d.png",
+        "tv_呕吐": "9f996894a39e282ccf5e66856af49483f81870f3.png",
+        "tv_困": "241ee304e44c0af029adceb294399391e4737ef2.png",
+        "tv_坏笑": "1f0b87f731a671079842116e0991c91c2c88645a.png",
+        "tv_大佬": "093c1e2c490161aca397afc45573c877cdead616.png",
+        "tv_大哭": "23269aeb35f99daee28dda129676f6e9ea87934f.png",
+        "tv_委屈": "d04dba7b5465779e9755d2ab6f0a897b9b33bb77.png",
+        "tv_害羞": "a37683fb5642fa3ddfc7f4e5525fd13e42a2bdb1.png",
+        "tv_尴尬": "7cfa62dafc59798a3d3fb262d421eeeff166cfa4.png",
+        "tv_微笑": "70dc5c7b56f93eb61bddba11e28fb1d18fddcd4c.png",
+        "tv_思考": "90cf159733e558137ed20aa04d09964436f618a1.png",
+        "tv_惊吓": "0d15c7e2ee58e935adc6a7193ee042388adc22af.png",
+        // ... 更多表情
+      }
+    })
+  </script>
+</body>
+
 </html>

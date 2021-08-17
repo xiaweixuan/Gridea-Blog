@@ -1,14 +1,15 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" >
+
+<head>
+  <meta charset="utf-8" >
 
 <title>canvas粒子动画 | Wix</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-<link rel="shortcut icon" href="http://xiawx.top/favicon.ico?v=1629179774981">
+<link rel="shortcut icon" href="http://xiawx.top/favicon.ico?v=1629183520212">
 <link rel="stylesheet" href="http://xiawx.top/styles/main.css">
 
 
@@ -22,20 +23,24 @@
 <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
+<!-- 添加评论所需 -->
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
 
 
-    <meta name="description" content="在canvas动画中，很大的一部分，都使用到了粒子系统，例如，本文将使用面向对象的思路去讲解该动画的实现。
+
+  <meta name="description" content="在canvas动画中，很大的一部分，都使用到了粒子系统，例如，本文将使用面向对象的思路去讲解该动画的实现。
 首先对于你来说，在打开页面后看到的是什么？众多随着你光标浮动的圆点？没错！你已经掌握到了精髓！在这个动画中，无非只是十几个圆点在浮动..." />
-    <meta name="keywords" content="" />
-  </head>
-  <body>
-    <div id="app" class="main">
+  <meta name="keywords" content="" />
+</head>
 
-      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+<body>
+  <div id="app" class="main">
+
+    <div class="sidebar" :class="{ 'full-height': menuVisible }">
   <div class="top-container" data-aos="fade-right">
     <div class="top-header-container">
       <a class="site-title-container" href="http://xiawx.top">
-        <img src="http://xiawx.top/images/avatar.png?v=1629179774981" class="site-logo">
+        <img src="http://xiawx.top/images/avatar.png?v=1629183520212" class="site-logo">
         <h1 class="site-title">Wix</h1>
       </a>
       <div class="menu-btn" @click="menuVisible = !menuVisible">
@@ -111,38 +116,47 @@
 </div>
 
 
-      <div class="main-container">
-        <div class="content-container" data-aos="fade-up">
-          <div class="post-detail">
-            <h2 class="post-title">canvas粒子动画</h2>
-            <div class="post-date">2021-07-19</div>
-            
-              <div class="feature-container" style="background-image: url('http://xiawx.top/post-images/pSCXNarVM.webp')">
-              </div>
-            
-            <div class="post-content" v-pre>
-              <p>在canvas动画中，很大的一部分，都使用到了粒子系统，<a href="https://xiaweixuan.github.io/pageDisplay/canvas/">例如</a>，本文将使用面向对象的思路去讲解该动画的实现。</p>
+    <div class="main-container">
+      <div class="content-container" data-aos="fade-up">
+        <div class="post-detail">
+          <h2 class="post-title">canvas粒子动画</h2>
+          <div class="post-date">2021-07-19</div>
+          
+          <div class="feature-container" style="background-image: url('http://xiawx.top/post-images/pSCXNarVM.webp')">
+          </div>
+          
+          <div class="post-content" v-pre>
+            <p>在canvas动画中，很大的一部分，都使用到了粒子系统，<a href="https://xiaweixuan.github.io/pageDisplay/canvas/">例如</a>，本文将使用面向对象的思路去讲解该动画的实现。</p>
 <p>首先对于你来说，在打开页面后看到的是什么？众多随着你光标浮动的圆点？没错！你已经掌握到了精髓！在这个动画中，无非只是十几个圆点在浮动，我们要做的就是控制他们浮动。</p>
 
-            </div>
-            
-            
-
-            
-              
-
-              
-                <div id="disqus_thread" data-aos="fade-in"></div>
-              
-            
-
           </div>
+          
+
+          <!-- id 将作为查询条件 -->
+          <!-- <span id="canvas粒子动画" class="leancloud_visitors" data-flag-title="Your Article Title">
+            <em class="post-meta-item-text">阅读量 </em>
+            <i class="leancloud-visitors-count">1000000</i>
+          </span> -->
+          <!-- 添加评论所需 -->
+          <div id="vcomments"></div>
+
+          
+
+          
+          
+
+          
+          <div id="disqus_thread" data-aos="fade-in"></div>
+          
+          
 
         </div>
+
       </div>
     </div>
+  </div>
 
-    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+  <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
 <script type="application/javascript">
 
 AOS.init();
@@ -186,5 +200,44 @@ var app = new Vue({
 
 
 
-  </body>
+
+  <!-- 添加评论所需 -->
+  <script>
+    var valine = new Valine();
+    valine.init({
+      el: '#vcomments',
+      appId: 'wsDl3brWkUlHBKaNxb21veD5-gzGzoHsz',
+      appKey: 'VmdAqVf9EYbFvHrSBU4dXhNh',
+      // visitor: true // 阅读量统计
+      // 设置Bilibili表情包地址
+      emojiCDN: '//i0.hdslb.com/bfs/emote/',
+      // 表情title和图片映射
+      emojiMaps: {
+        "tv_doge": "6ea59c827c414b4a2955fe79e0f6fd3dcd515e24.png",
+        "tv_亲亲": "a8111ad55953ef5e3be3327ef94eb4a39d535d06.png",
+        "tv_偷笑": "bb690d4107620f1c15cff29509db529a73aee261.png",
+        "tv_再见": "180129b8ea851044ce71caf55cc8ce44bd4a4fc8.png",
+        "tv_冷漠": "b9cbc755c2b3ee43be07ca13de84e5b699a3f101.png",
+        "tv_发怒": "34ba3cd204d5b05fec70ce08fa9fa0dd612409ff.png",
+        "tv_发财": "34db290afd2963723c6eb3c4560667db7253a21a.png",
+        "tv_可爱": "9e55fd9b500ac4b96613539f1ce2f9499e314ed9.png",
+        "tv_吐血": "09dd16a7aa59b77baa1155d47484409624470c77.png",
+        "tv_呆": "fe1179ebaa191569b0d31cecafe7a2cd1c951c9d.png",
+        "tv_呕吐": "9f996894a39e282ccf5e66856af49483f81870f3.png",
+        "tv_困": "241ee304e44c0af029adceb294399391e4737ef2.png",
+        "tv_坏笑": "1f0b87f731a671079842116e0991c91c2c88645a.png",
+        "tv_大佬": "093c1e2c490161aca397afc45573c877cdead616.png",
+        "tv_大哭": "23269aeb35f99daee28dda129676f6e9ea87934f.png",
+        "tv_委屈": "d04dba7b5465779e9755d2ab6f0a897b9b33bb77.png",
+        "tv_害羞": "a37683fb5642fa3ddfc7f4e5525fd13e42a2bdb1.png",
+        "tv_尴尬": "7cfa62dafc59798a3d3fb262d421eeeff166cfa4.png",
+        "tv_微笑": "70dc5c7b56f93eb61bddba11e28fb1d18fddcd4c.png",
+        "tv_思考": "90cf159733e558137ed20aa04d09964436f618a1.png",
+        "tv_惊吓": "0d15c7e2ee58e935adc6a7193ee042388adc22af.png",
+        // ... 更多表情
+      }
+    })
+  </script>
+</body>
+
 </html>
