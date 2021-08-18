@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" >
+
+<title>React函数组件的应用（一）useState、useRef  | Wix</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="http://xiawx.top/favicon.ico?v=1629278678185">
+<link rel="stylesheet" href="http://xiawx.top/styles/main.css">
+
+
+  
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/disqusjs@1.1/dist/disqusjs.css" />
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+<!-- 添加评论所需 -->
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+
+
+
+  <meta name="description" content="useState
+useState原理
+如果你不了解class组件，也没有关系，我们无需通过与class比较而引入它。
+useState是组件中最基础的工具，使用它来帮助我们创建一个“状态变量”。如果你不理解什么是“状态”，也没有关系。
+在..." />
+  <meta name="keywords" content="blog" />
+</head>
+
+<body>
+  <div id="app" class="main">
+
+    <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="http://xiawx.top">
+        <img src="http://xiawx.top/images/avatar.png?v=1629278678185" class="site-logo">
+        <h1 class="site-title">Wix</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/tag/aJjMPrl2v/" class="site-nav">
+            Blog
+          </a>
+        
+      
+        
+          <a href="/tag/M1N5NOEJB/" class="site-nav">
+            Life
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            Tag
+          </a>
+        
+      
+        
+          <a href="http://note.xiawx.top" class="site-nav" target="_blank">
+            Note
+          </a>
+        
+      
+        
+          <a href="https://xiaweixuan.github.io/resume/index.pdf" class="site-nav" target="_blank">
+            Resume
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            About
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/xiaweixuan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The best decisions are made without thinking
+    </div>
+    <div class="site-footer">
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span> | <a class="rss" href="http://xiawx.top/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="main-container">
+      <div class="content-container" data-aos="fade-up">
+        <div class="post-detail">
+          <h2 class="post-title">React函数组件的应用（一）useState、useRef </h2>
+          <div class="post-date">2021-08-18</div>
+          
+          <div class="feature-container" style="background-image: url('http://xiawx.top/post-images/3IMlVDhnC.png')">
+          </div>
+          
+          <div class="post-content" v-pre>
+            <h2 id="usestate">useState</h2>
+<h5 id="usestate原理">useState原理</h5>
+<p>如果你不了解class组件，也没有关系，我们无需通过与class比较而引入它。</p>
+<p>useState是组件中最基础的工具，使用它来帮助我们创建一个“状态变量”。如果你不理解什么是“状态”，也没有关系。</p>
+<p>在数据驱动思想的开发模式下，我们应该将每一个动作、UI与数据相关联，通过操作数据去操作视图。一个简单的例子，我们想要使一个一个div去想右移动10px如何实现？这很简单，我们只需要获取到这个div元素，然后将它style的值减少10px</p>
+<pre><code class="language-javascript">const div = document.getElementById(&quot;app&quot;)
+div.style.transform = 'translateX(10px)'
+</code></pre>
+<p>在做这件事情的时候，我们要考虑的第一主体是div这个元素，通过控制这个dom节点的属性来移动它，不论我们要操作它多少次，都将是以它为主。</p>
+<p>而数据驱动意在让我们抛离这些旁事，将重心放在数据上。如果在最开始，有一个变量叫做distance，这个变量在以后的操作中，将始终代表这个元素的平移的距离。每当我想要改变div元素时，例如我想让他向右平移10px，只需要改变distance的值即可，视图会自动更新。这样一来，我无需再关心如何去获取dom这些琐事，我只需要关注distance这个变量，因为它代表了dom节点现在的平移状态。把重心放在数据上。ok，那么，我们来实现它。</p>
+<pre><code class="language-javascript">let distance = 0
+const div = document.getElementById(&quot;app&quot;)
+
+function setDistance(state) {
+	distance = state
+  render()
+}
+function render() {
+  div.style.transform = `translateX(${distance}px)`
+}
+</code></pre>
+<p>在做了一些简单的准备后，现在我想要让div进行平移，那么，我只需要使用<code>setDistance(10)</code>方法。对于使用者，我可以不去思考setDistance内部是如何实现的，我只需要知道，通过setDistance改变distance的值后，视图会随之更新。这便是数据驱动的一些观点，将我们的思考重心放在数据上。在UI中的dom逐渐变得复杂时，我们可以不用担心复杂的dom关系带来的额外工作。</p>
+<p>而在与react中，useState正式如此。再通过useState初始化得到的一个变量与一个函数正是对应着上面的distance与setDistance。将变量与dom绑定后，即可通过变量来操作dom。</p>
+<p>他的使用法非常简单</p>
+<pre><code class="language-jsx">function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    &lt;div&gt;
+      &lt;span&gt;{count}&lt;/span&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;Click&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<p>通过点击按钮触发setCount方法来进行count的变化，count的变化从而触发视图的重新渲染。</p>
+<p>在之前的例子中，我们使用全局创建的distance来存储我们的状态变量，可在react中，会出现众多的state，如果都要定义变量，则难以管理。所以这里，我们可以使用数组来存储。</p>
+<p>我们将所有定义的状态变量放在一个数组stateList中，然后定义一个下标来找到指定的状态变量。</p>
+<pre><code class="language-javascript">let stateList = [];
+let index = 0;
+</code></pre>
+<p>在使用useState定义状态的时候，我们只需要将当前定义的变量插入数组中。</p>
+<pre><code class="language-javascript">function useState(initialValue) {
+  stateList[index] = initialValue;
+  const currentindex = index;
+  const setState = newState =&gt; {
+    stateList[currentindex] = newState;
+    render();
+  };
+  index = index + 1
+  return [stateList[currentindex], setState];
+}
+</code></pre>
+<p>现在，我们在组件中使用它</p>
+<pre><code class="language-jsx">function App() {
+  const [count, setCount] = useState(3);
+  // count 即 stateList[0]  
+  // setCount 为 (newState) =&gt; { stateList[0] = newState; render() }
+  const [num, setNum] = useState(0);
+  // num 即 stateList[1]  
+  // setNum 为 (newState) =&gt; { stateList[1] = newState; render() }
+  return (
+    &lt;div&gt;
+      &lt;span&gt;{count}&lt;/span&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        click
+      &lt;/button&gt;
+      &lt;span&gt;{num}&lt;/span&gt;
+      &lt;button onClick={() =&gt; setNum(num + 1)}&gt;
+        click
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<p>这样，通过下标记录，来将所有state存放在一个数组中存储。现在，我们将它渲染到页面中</p>
+<pre><code class="language-jsx">function render() {
+  index = 0;
+  ReactDOM.render(&lt;App /&gt;, rootElement);
+}
+render()
+</code></pre>
+<p>现在我们已经可以看到页面中的两个span了，一个内容为<code>3</code>一个为<code>0</code>。当时当我们点击时，数值并不会增加。当我们点击第一个按钮，触发了setCount，此时stateList[0]的值增加了1，然后执行render方法。render方法将index置为0后，重新渲染函数组件，组件会依次渲染，当在此执行到App组件中的useState时，相当于重新把初始值付给了stateList[0]。</p>
+<p>所以，我们需要在非首次更新视图的时候，不去进行重新赋值。</p>
+<pre><code class="language-js">function useState(initialValue) {
+  stateList[index] = stateList[index] || initialValue; // 如果当前值存在，即证明之前赋值过，此时将不再使用传入的初始值
+  const currentindex = index;
+  const setState = newState =&gt; {
+    stateList[currentindex] = newState;
+    render();
+  };
+  index = index + 1
+  return [stateList[currentindex], setState];
+}
+</code></pre>
+<p>此时，我们便完成了这个useState的实现。因为每次渲染组件，执行每一个useState的顺序是不变的，所以他们可以通过注册setState函数时存储的下标找到自己存储值的位置。这也就要求我们在写函数组件时，不能将hook包在判断语句中，例如</p>
+<pre><code class="language-jsx">function App() {
+
+  const [count, setCount] = useState(3);
+  if(count &gt; 3) {
+  	const [num, setNum] = useState(0);
+  }
+  const [page, setPage] = useState(0);
+  return (
+    &lt;div&gt;
+      &lt;span&gt;{count}&lt;/span&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        click
+      &lt;/button&gt;
+      &lt;span&gt;{num}&lt;/span&gt;
+      &lt;button onClick={() =&gt; setNum(num + 1)}&gt;
+        click
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<p>第一次赋值时，count、num、page分别的下标是0、1、2。当count增加1的时候，在此渲染组件时，将不会在调用<code>const [num, setNum] = useState(0)</code>而直接调用<code>const [page, setPage] = useState(0)</code>，这时，stateList[1]就被付给了page从而导致错误。所以，在使用hook时要严格遵守这个规范。</p>
+<p>useState简单原理代码如下：</p>
+<pre><code class="language-jsx">const rootElement = document.getElementById(&quot;root&quot;);
+
+let stateList = [];
+let index = 0;
+
+function useState(initialValue) {
+  stateList[index] = stateList[index] || initialValue;
+  const currentindex = index;
+
+  const setState = newState =&gt; {
+    stateList[currentindex] = newState;
+    render();
+  };
+
+  return [stateList[index++], setState];
+}
+
+function App() {
+  const [count, setCount] = useState(3);
+  const [num, setNum] = useState(0);
+
+  return (
+    &lt;div&gt;
+      &lt;span&gt;{count}&lt;/span&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        click
+      &lt;/button&gt;
+      &lt;span&gt;{num}&lt;/span&gt;
+      &lt;button onClick={() =&gt; setNum(num + 1)}&gt;
+        click
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+function render() {
+  index = 0;
+  ReactDOM.render(&lt;App /&gt;, rootElement);
+}
+render();
+</code></pre>
+<p>在调用useData去改变状态变量的值时，我们会以data本身作为参考。在上例中，我们在点击时为num增加一遍是通过setNum(num + 1)来实现，他是在num的基础上进行的运算。因为js是静态作用域，所以变量会在函数声明时被确定。下例</p>
+<pre><code class="language-jsx">function App() {
+  const [count, setCount] = useState(0);
+
+  const handleClick = () =&gt; {
+    setTimeout(() =&gt; {
+      setCount(count + 1)
+    }, 1000)
+  }
+  
+  return (
+    &lt;div&gt;
+      &lt;span&gt;{count}&lt;/span&gt;
+      &lt;button onClick={handleClick}&gt;
+        click
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<p>我们的想法是，在点击完成1s以后去进行数值的变化。可在实际操作时，如果我们在1s中点击多次，他的值永远增加的是1，count在1s后变为1之后，再无变化。</p>
+<p>这是因为，我们在快速点击按钮后，迅速定义出了三个等待执行事件回调，此时，count并无变化，它的值一直是0，所以生成的三个函数全部为</p>
+<pre><code class="language-javascript">() =&gt; {
+  setCount(0 + 1)
+}
+</code></pre>
+<p>所以，react中setState在定义setCount方法的时候，为我们提供了定外一种写法</p>
+<pre><code class="language-javascript">setCount(count =&gt; count + 1)
+</code></pre>
+<p>通过函数的方式，将上一次的count值传递过来，使用这种方式拿到count而无需我们自行的去设法拿到它执行时的值。因为我们可能会在任何地方去使用setCount。</p>
+<h5 id="setstate的多次调用时的渲染情况">setState的多次调用时的渲染情况</h5>
+<p>当我们在一个方法中先后调用了两个setState的方法</p>
+<pre><code class="language-jsx">function App() {
+  const [count, setCount] = useState(3);
+  const [num, setNum] = useState(0);
+  
+	console.log(1) // 用于监测App组件渲染次数
+  
+  const handleClick = () =&gt; {
+    setCount(count + 1)
+    setNum(num + 1)
+  }
+  
+  return (
+    &lt;div&gt;
+      &lt;span&gt;{count}&lt;/span&gt;
+      &lt;span&gt;{num}&lt;/span&gt;
+      &lt;button onClick={handleClick}&gt;
+        click
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<p>点击按钮后会发现控制台只输出了一次</p>
+<pre><code class="language-shell">&gt; 1
+</code></pre>
+<p>尽管我们调用了两次setState方法，相对应了App中的输出却只输出一次，这是因为React在渲染时为我们进行了合并，这样会减少更多的无用渲染。在父子组件中也是这样</p>
+<pre><code class="language-jsx">function Child({ num, setNum }) {
+  const [data, setData] = useState(0);
+  console.log(2);
+  const handle = () =&gt; {
+    setData(data + 1)
+    setNum(num + 1)
+  }
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;{num}&lt;/h2&gt;
+      &lt;h2&gt;{data}&lt;/h2&gt;
+      &lt;button onClick={handle}&gt;click&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+
+function App() {
+  const [num, setNum] = useState(0);
+  console.log(1);
+  return (
+    &lt;div className=&quot;App&quot;&gt;
+      &lt;Child num={num} setNum={setNum} /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<p>在点击按钮后，在控制台的输出并不是先输出一个2，在输出1、2，而是直接输出1、2</p>
+<pre><code class="language-shell">&gt; 1
+&gt; 2
+</code></pre>
+<p>React会帮我们在渲染方面尽量减少无用的工作。这也证明了setState的更新时异步的。</p>
+<p>但是，如果我们将此方做放入setTimeout中</p>
+<pre><code class="language-jsx">function App() {
+  const [count, setCount] = useState(3);
+  const [num, setNum] = useState(0);
+  
+	console.log(1)
+  
+  const handleClick = () =&gt; {
+    setTimeout(() =&gt; {
+    	setCount(count + 1)
+    	setNum(num + 1)
+    }, 0)
+  }
+  
+  return (
+    &lt;div&gt;
+      &lt;span&gt;{count}&lt;/span&gt;
+      &lt;span&gt;{num}&lt;/span&gt;
+      &lt;button onClick={handleClick}&gt;
+        click
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<p>此时会发现，控制台的输出为</p>
+<pre><code class="language-shell">&gt; 1
+&gt; 1
+</code></pre>
+<p>此外，如果两次setState之间有异步操作改开的话，也会进行多次渲染</p>
+<pre><code class="language-jsx">function App() {
+  const [count, setCount] = useState(3);
+  const [num, setNum] = useState(0);
+  
+	console.log(1)
+  
+  const handleClick = async () =&gt; {
+    setCount(count + 1)
+    await sleep()
+   	setNum(num + 1)
+  }
+  
+  return (
+    &lt;div&gt;
+      &lt;span&gt;{count}&lt;/span&gt;
+      &lt;span&gt;{num}&lt;/span&gt;
+      &lt;button onClick={handleClick}&gt;
+        click
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<p>输出也为两次。这也证明，React的合并渲染能力是有限的。而渲染是否会被合并取决于他是否处于React的<strong>事件处理程序中</strong>，例如react的类组件的生命周期，又或者是事件函数。但像setTimeout、Promise这类方法的回调中，便不属于React的可控范围。在被await函数间隔之后，以后的代码也将不在属于可控范围。例如</p>
+<pre><code class="language-jsx">console.log('组件渲染')  
+const handleClick = async () =&gt; {
+  setCount(count =&gt; count + 1)
+  await sleep()
+  setCount(count =&gt; count + 1)
+  setCount(count =&gt; count + 1)
+}
+</code></pre>
+<p>将会在控制台输出三次<code>组件渲染</code></p>
+<blockquote>
+<p>Eg：此处的事件函数必须为React事件，如果是原生事件的绑定，则无法进行合并</p>
+</blockquote>
+<blockquote>
+<p>Eg：React使用事务机制为可控范围内的函数方法进行延迟执行。</p>
+</blockquote>
+<p>对于处于这些环境中的setState方法不会立即执行渲染，而是会被加入缓存数组。而后经过计算、处理后，统一执行渲染。但不在这些环境的setState方法便会在触发时，立刻执行。setState的立即执行便会引起视图的立刻渲染。对于</p>
+<pre><code class="language-jsx">function App() {
+  const [count, setCount] = useState(0);
+  
+	console.log('组件渲染')
+  
+  const handleClick = () =&gt; {
+      setCount(count + 1)
+      console.log(count)
+  }
+  
+  return (
+    &lt;div&gt;
+      &lt;span&gt;{count}&lt;/span&gt;
+      &lt;button onClick={handleClick}&gt;
+        click
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<p>此时控制台的输出为</p>
+<pre><code>&gt; 0
+&gt; 组件渲染
+</code></pre>
+<p>而将setState改为立即执行后</p>
+<pre><code class="language-jsx">function App() {
+  const [count, setCount] = useState(0);
+  
+	console.log('组件渲染')
+  
+  const handleClick = async () =&gt; {
+    setTimeout(() =&gt; {
+      setCount(count + 1)
+      console.log(count)
+    }, 0)
+  }
+  
+  return (
+    &lt;div&gt;
+      &lt;span&gt;{count}&lt;/span&gt;
+      &lt;button onClick={handleClick}&gt;
+        click
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<p>此时控制台输出</p>
+<pre><code>&gt; 组件渲染
+&gt; 0
+</code></pre>
+<blockquote>
+<p>在React 18中，将在更多环境中实现合并渲染</p>
+</blockquote>
+<h2 id="useref">useRef</h2>
+<p>在React 应用中，变量和UI通过函数绑定，这类变量被叫做状态变量，而状态变量的变更会引起视图的重新渲染。</p>
+<pre><code class="language-jsx">function App() {
+  const [state, setState] = useState(0)
+  return (&lt;div&gt;
+    &lt;button onClick={() =&gt; setState(state + 1)}&gt;{state}&lt;/button&gt;
+  &lt;/div&gt;)
+}
+</code></pre>
+<p>在点击按钮后，会改变变量的值，从而触发视图重新渲染。但有时，我们不希望变量变化后会对视图进行更新，我们只是希望这是一个单纯的用于存储数据的变量，并且不随组件每次重渲染而重新赋值。这时，我们需要的可能并不是一个“状态”，而是一个“ref”。</p>
+<p>ref与创造它的组件一起存在于其整个生命周期，但它的改变将不会引起视图更新。在使用useRef创造了一个ref后，他的值被存在了ref对象的current属性下。</p>
+<blockquote>
+<p>相比一般变量，在重新渲染组件后，ref仍能保持上一次的值，一般变量则会重新变为初始值。相比状态变量，ref的改变将不会触发视图渲染。</p>
+</blockquote>
+<pre><code class="language-jsx">export default function App() {
+  const [count, setCount] = useState(0);
+  const ref = useRef(count);
+  const prevCount = ref.current;
+
+  console.log('组件渲染')
+
+  useEffect(() =&gt; {
+    console.log(`上一次的值：${prevCount}, 本次的值：${count}`)
+    ref.current = count
+  }, [visible]);
+
+  return &lt;button onClick={() =&gt; setCount(count + 1)}&gt;{String(count)}&lt;/button&gt;
+}
+</code></pre>
+<p>在点击一次按钮后，在控制台可见</p>
+<pre><code>&gt; 组件渲染 
+&gt; 上一次的值：0, 本次的值：1 
+</code></pre>
+<p>在点击触发状态变量改变时，组件将重新执行渲染。当第二次执行<code>const prevVisible = ref.current</code>时，此时的ref.current的值仍然是第一次的值并未改变，而此时的count已经变为+1后的值，故在执行useEffect中的输出如上。而在输出完成后，对ref.current进行赋值，此时，ref.current的值才出现了变更，并且变更后不会引起视图渲染。</p>
+<p>对于useRef的实现原理，最简单的实现如下</p>
+<pre><code class="language-jsx">function useRef(initialValue) { 
+  return useMemo(() =&gt; ({ current: initialValue }), []);
+}
+</code></pre>
+<h5 id="创建ref的方式">创建ref的方式</h5>
+<p>对于函数组件，我们即可使用useRef的方式去创建，而在类组件中可使用顶层方法React.createRef来创建</p>
+<pre><code class="language-jsx">// 函数组件
+function App() {
+  const ref = useRef()
+  return &lt;div&gt;&lt;/div&gt;
+}
+
+// 类组件
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.ref = React.createRef();
+  }
+}
+</code></pre>
+<blockquote>
+<p>如果我们创建ref只是想获取dom元素，我们还可以通过一下方式来获取</p>
+<pre><code class="language-jsx">export default function App(){  
+  let myRef; 
+   useEffect(() =&gt; {    
+      console.log(myRef)  
+  }, [myRef])  
+  return &lt;ReactClassComponent ref={(el) =&gt; {myRef = el}} /&gt;
+}
+</code></pre>
+</blockquote>
+<h5 id="使用ref绑定元素">使用ref绑定元素</h5>
+<p>ref的出现更多情况下是用来解决dom问题的。在react编程中，它很好的为我们创建了虚拟dom并让我们无需关心dom操作。但有时，我们仍需要去主动的获取并操作dom，这时，存储dom的变量必须不会随组件的每次渲染而重新赋值，故此时，我们定义一个ref与dom绑定实是天作之合。</p>
+<p>将我们定义出来的ref变量赋给dom元素的ref属性，即可通过ref来调用原生dom元素的方法。</p>
+<pre><code class="language-jsx">function App(){
+  const ref = useRef();
+  useEffect(() =&gt; {
+    ref.current.focus()
+  }, [])
+  return &lt;input ref={ref}/&gt;
+}
+</code></pre>
+<p>ref变量在接收原生dom对象时，将会把该原生对象作为其current属性。在接收react类组件时，会将会接收组件的挂载实例作为其 current 属性。另外，ref并不接收、绑定函数组件，因为它没有实例。</p>
+<pre><code class="language-jsx">class ReactClassComponent extends React.Component {
+  render() {
+    return &lt;div&gt;ReactClassComponent&lt;/div&gt;
+  }
+} 
+
+function App(){
+  const ref1 = useRef();  
+  const ref2 = useRef();
+  
+  useEffect(() =&gt; {
+    console.log(ref1.current)   // &lt;input /&gt;
+    console.log(ref2.current)   // ReactClassComponent实例
+  }, [])
+
+  return (&lt;div&gt; 
+  			&lt;input ref={ref1}/&gt;
+      	&lt;ReactClassComponent ref={ref2}/&gt;
+      &lt;/div&gt;)
+}
+</code></pre>
+<p>当我们给类组件ref属性赋值时，ref不会作为参数进入子组件的props中，因为它代表的是子组件本身。</p>
+<pre><code class="language-jsx">class ReactClassComponent extends React.Component {
+  console.log(this.props.text)  // hello world
+	console.log(this.props.ref)   // null
+
+  render() {
+    return &lt;div&gt;ReactClassComponent&lt;/div&gt;
+  }
+} 
+
+function App(){
+  const myRef = useRef();  
+  return &lt;ReactClassComponent ref={myRef} text=&quot;hello world&quot;/&gt;
+}
+</code></pre>
+<h5 id="将ref向下级传递">将ref向下级传递</h5>
+<p>类组件在接收到从ref属性传来的myRef对象时，不会将它作为普通的属性处理，并且不会将ref对象传到组件那。可如果我们这时的目的是传递而不是绑定呢？在写出<code>&lt;ReactClassComponent ref={myRef} text=&quot;hello world&quot;/&gt;</code>的时候，我们可能是想把组件实例与myref对象绑定，也可能只是单纯的想将myRef对象传递到组件中使用。这时，普通的组件将无法做到，我们需要使用React提供给我们的生成器去生成一个组件</p>
+<pre><code class="language-jsx">const Child = React.forwardRef((props, ref) =&gt; {
+  console.log(ref.current); // &lt;button&gt;click&lt;/button&gt;
+  return &lt;button ref={ref}&gt;click&lt;/button&gt;;
+});
+
+export default function App(){
+  const myRef = useRef();  
+  return &lt;Child ref={myRef}/&gt;
+}
+</code></pre>
+<p>通过React.forwardRef生成的组件可以接受ref方法，并且将它传入生成的组件中，而非直接与自身绑定。上面的方式，就成功的将子组件中的button元素与父级定义的ref对象所绑定上了。</p>
+<h5 id="自定义与ref绑定的对象">自定义与ref绑定的对象</h5>
+<p>到目前为止，能绑定到ref对象上的有类组件、原生dom元素。其实，我们可以自定义能被ref绑定的对象</p>
+<pre><code class="language-jsx">function App(){
+  const myRef = useRef(); 
+  useImperativeHandle(myRef, () =&gt; ({
+    click: () =&gt; {
+      console.log('click')
+    }
+  }));
+  console.log(myRef)
+  return &lt;div&gt;app&lt;/div&gt;
+}
+</code></pre>
+<p>此时ref对象在控制台的输出如下</p>
+<pre><code class="language-javascript">{
+  current: {
+    click: () =&gt; { console.log('click') }
+  }
+}
+</code></pre>
+<p>useImperativeHandle接受一个ref对象和一个生成函数，函数的返回即为与ref对象绑定的对象。通过这个方法，我们无需将整个dom对外暴露，而只暴露我们所规定的一些方法。</p>
+<p>在不使用useImperativeHandle的时候，我们想将组件中的input对父级暴露</p>
+<pre><code class="language-jsx">const FancyInput = React.forwardRef((props, ref) =&gt; {
+  return &lt;input ref={ref} ... /&gt;;
+})
+
+function App(){
+  const myRef = useRef(); 
+  return &lt;FancyInput ref={myRef}/&gt;
+}
+</code></pre>
+<p>此时，在父级可以直接拿到input的dom元素去做任何操作，而有时，我们可能只是想暴露该dom元素的一些原生方法，例如focus。所以我们大可不必将整个dom元素暴露</p>
+<pre><code class="language-jsx">const FancyInput = React.forwardRef((props, ref) =&gt; {
+  const inputRef = useRef();
+  useImperativeHandle(ref, () =&gt; ({
+    focus: () =&gt; {
+      inputRef.current.focus();
+    }
+  }));
+  return &lt;input ref={inputRef} ... /&gt;;
+})
+
+function App(){
+  const myRef = useRef(); 
+  return &lt;FancyInput ref={myRef}/&gt;
+}
+</code></pre>
+<p>此时，在App中只能使用我们所规定的方法。</p>
+
+          </div>
+          
+          <div class="tag-container">
+            
+            <a href="http://xiawx.top/tag/aJjMPrl2v/" class="tag">
+              blog
+            </a>
+            
+          </div>
+          
+
+          <!-- id 将作为查询条件 -->
+          <!-- <span id="React函数组件的应用（一）useState、useRef " class="leancloud_visitors" data-flag-title="Your Article Title">
+            <em class="post-meta-item-text">阅读量 </em>
+            <i class="leancloud-visitors-count">1000000</i>
+          </span> -->
+          <!-- 添加评论所需 -->
+          <div id="vcomments"></div>
+
+          
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="http://xiawx.top/post/ft0fyF6xW/">
+              <h3 class="post-title">
+                七夕快乐，分享一些文学作品中的情话
+              </h3>
+            </a>
+          </div>
+          
+
+          
+          
+
+          
+          <div id="disqus_thread" data-aos="fade-in"></div>
+          
+          
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+
+  
+    <script src="https://unpkg.com/disqusjs@1.1/dist/disqus.js"></script>
+    <script>
+
+    var options = {
+      shortname: '',
+      apikey: 'ZUU80KJ3uhRlLYoe6rrfD3x8c2m2hKUCjIilbaTOItbVIODeJ3k6WqwaFiVcdfaU',
+    }
+    if ('') {
+      options.api = ''
+    }
+    var dsqjs = new DisqusJS(options)
+
+    </script>
+  
+
+
+
+
+
+  <!-- 添加评论所需 -->
+  <script>
+    var valine = new Valine();
+    valine.init({
+      el: '#vcomments',
+      appId: 'wsDl3brWkUlHBKaNxb21veD5-gzGzoHsz',
+      appKey: 'VmdAqVf9EYbFvHrSBU4dXhNh',
+      // visitor: true // 阅读量统计
+      // 设置Bilibili表情包地址
+      emojiCDN: '//i0.hdslb.com/bfs/emote/',
+      // 表情title和图片映射
+      emojiMaps: {
+        "tv_doge": "6ea59c827c414b4a2955fe79e0f6fd3dcd515e24.png",
+        "tv_亲亲": "a8111ad55953ef5e3be3327ef94eb4a39d535d06.png",
+        "tv_偷笑": "bb690d4107620f1c15cff29509db529a73aee261.png",
+        "tv_再见": "180129b8ea851044ce71caf55cc8ce44bd4a4fc8.png",
+        "tv_冷漠": "b9cbc755c2b3ee43be07ca13de84e5b699a3f101.png",
+        "tv_发怒": "34ba3cd204d5b05fec70ce08fa9fa0dd612409ff.png",
+        "tv_发财": "34db290afd2963723c6eb3c4560667db7253a21a.png",
+        "tv_可爱": "9e55fd9b500ac4b96613539f1ce2f9499e314ed9.png",
+        "tv_吐血": "09dd16a7aa59b77baa1155d47484409624470c77.png",
+        "tv_呆": "fe1179ebaa191569b0d31cecafe7a2cd1c951c9d.png",
+        "tv_呕吐": "9f996894a39e282ccf5e66856af49483f81870f3.png",
+        "tv_困": "241ee304e44c0af029adceb294399391e4737ef2.png",
+        "tv_坏笑": "1f0b87f731a671079842116e0991c91c2c88645a.png",
+        "tv_大佬": "093c1e2c490161aca397afc45573c877cdead616.png",
+        "tv_大哭": "23269aeb35f99daee28dda129676f6e9ea87934f.png",
+        "tv_委屈": "d04dba7b5465779e9755d2ab6f0a897b9b33bb77.png",
+        "tv_害羞": "a37683fb5642fa3ddfc7f4e5525fd13e42a2bdb1.png",
+        "tv_尴尬": "7cfa62dafc59798a3d3fb262d421eeeff166cfa4.png",
+        "tv_微笑": "70dc5c7b56f93eb61bddba11e28fb1d18fddcd4c.png",
+        "tv_思考": "90cf159733e558137ed20aa04d09964436f618a1.png",
+        "tv_惊吓": "0d15c7e2ee58e935adc6a7193ee042388adc22af.png",
+        // ... 更多表情
+      }
+    })
+  </script>
+</body>
+
+</html>
