@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" >
+
+<title>浏览器的渲染原理及性能探索 | Wix</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="http://xiawx.top/favicon.ico?v=1632637334627">
+<link rel="stylesheet" href="http://xiawx.top/styles/main.css">
+
+
+  
+
+  
+    <link rel="stylesheet" href="https://unpkg.com/disqusjs@1.1/dist/disqusjs.css" />
+  
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+<!-- 添加评论所需 -->
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+
+
+
+  <meta name="description" content="浏览器组成
+大部分的浏览器主要组成包括
+
+用户界面 - 包括地址栏、前进/后退按钮、书签菜单等。除了浏览器主窗口显示的您请求的页面外，其他显示的各个部分都属于用户界面。
+浏览器引擎 - 在用户界面和呈现引擎之间传送指令。
+渲染引擎 - 负责..." />
+  <meta name="keywords" content="blog" />
+</head>
+
+<body>
+  <div id="app" class="main">
+
+    <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="http://xiawx.top">
+        <img src="http://xiawx.top/images/avatar.png?v=1632637334627" class="site-logo">
+        <h1 class="site-title">Wix</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/tag/aJjMPrl2v/" class="site-nav">
+            Blog
+          </a>
+        
+      
+        
+          <a href="/tag/M1N5NOEJB/" class="site-nav">
+            Life
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            Tag
+          </a>
+        
+      
+        
+          <a href="http://note.xiawx.top" class="site-nav" target="_blank">
+            Note
+          </a>
+        
+      
+        
+          <a href="https://xiaweixuan.github.io/resume/index.pdf" class="site-nav" target="_blank">
+            Resume
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            About
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+          <a class="social-link" href="https://github.com/xiaweixuan" target="_blank">
+            <i class="fab fa-github"></i>
+          </a>
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      The best decisions are made without thinking
+    </div>
+    <div class="site-footer">
+      <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<span id="busuanzi_container_site_pv">本站总访问量<span id="busuanzi_value_site_pv"></span>次</span> | <a class="rss" href="http://xiawx.top/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+    <div class="main-container">
+      <div class="content-container" data-aos="fade-up">
+        <div class="post-detail">
+          <h2 class="post-title">浏览器的渲染原理及性能探索</h2>
+          <div class="post-date">2021-09-26</div>
+          
+          <div class="feature-container" style="background-image: url('http://xiawx.top/post-images/mMsE940Nw.jpg')">
+          </div>
+          
+          <div class="post-content" v-pre>
+            <h3 id="浏览器组成">浏览器组成</h3>
+<p>大部分的浏览器主要组成包括</p>
+<ol>
+<li><strong>用户界面</strong> - 包括地址栏、前进/后退按钮、书签菜单等。除了浏览器主窗口显示的您请求的页面外，其他显示的各个部分都属于用户界面。</li>
+<li><strong>浏览器引擎</strong> - 在用户界面和呈现引擎之间传送指令。</li>
+<li><strong>渲染引擎</strong> - 负责显示请求的内容。如果请求的内容是 HTML，它就负责解析 HTML 和 CSS 内容，并将解析后的内容显示在屏幕上。</li>
+<li><strong>网络</strong> - 用于网络调用，比如 HTTP 请求。其接口与平台无关，并为所有平台提供底层实现。</li>
+<li><strong>用户界面后端</strong> - 用于绘制基本的窗口小部件，比如组合框和窗口。其公开了与平台无关的通用接口，而在底层使用操作系统的用户界面方法。</li>
+<li><strong>JavaScript 解释器</strong>。用于解析和执行 JavaScript 代码。</li>
+<li><strong>数据存储</strong>。这是持久层。浏览器需要在硬盘上保存各种数据，例如 Cookie。新的 HTML 规范 (HTML5) 定义了“网络数据库”，这是一个完整（但是轻便）的浏览器内数据库。</li>
+</ol>
+<p>在将一个页面呈现在用户面前时，是多个引擎共同合作所呈现的结果。</p>
+<h3 id="浏览器的进程与线程">浏览器的进程与线程</h3>
+<p>进程被描述为一个应用的执行程序。线程则存在于进程内部负责执行某一部分。当您启动应用程序时，就会创建一个进程，进程可以创建自己的线程，也可以要求操作系统启动另外一个进程来协助运行任务。</p>
+<p>也就是说，一个正在运行的应用程序，他可能包括多个进程，而每个进程有可能包括多个线程。</p>
+<blockquote>
+<p>Eg：进程之间相互独立，祝进程通知操作系统启动了一个新的进程后，主进程可通过IPC机制进程进程间通信。</p>
+</blockquote>
+<p>那当浏览器被打开时，会有几个线程被创建呢？其实每个浏览器是不同的，他们都有自己的调度机制，但发展至今，几乎所有的主流浏览器都具有多进程架构。</p>
+<p>以chrome浏览器为例，它通常存在以下几个进程：</p>
+<ul>
+<li>浏览器进程：主进程，只有一个，负责用户界面和渲染引擎之间的交流，根据接收到的输入来查询和处理渲染引擎，管理各个页面。</li>
+<li>插件进程：控制网站使用的任何插件，当一个插件使用时，创建一个对应的插件进程。</li>
+<li>渲染器进程：用于渲染页面，将html、css、js转换为用户看到的网页。</li>
+<li>GPU进程：只有一个，独立于其他进程处理 GPU 任务。例如3D绘制等</li>
+<li>网络进程：进行网络请求</li>
+</ul>
+<p>对于单个页面（一个tab）来说，最重要的，是渲染器进程，它控制着页面的所有的事情，该进程也包括多个线程。</p>
+<p>通常来说，渲染器进程会创建一个主线程，它使用渲染引擎去解析html并渲染页面，当遇到js文件时，会暂停渲染引擎的工作转而使用js引擎去解析js内容。所以，页面渲染与js的执行是互斥不可同时进行的。</p>
+<blockquote>
+<h3 id="比较-chrome-和-firefox">比较 Chrome 和 Firefox</h3>
+<p>Chrome 和 Firefox 现在都支持多线程，但它们以不同的方式实现。在 Chrome 中，打开的每个标签都有自己的内容处理。十个选项卡，10 个渲染进程。一百个选项卡，100 个渲染进程。这种方法可以最大限度地提高性能，但您会在内存消耗和电池寿命方面付出沉重的代价。Firefox 没有采用这种方法来解决问题，而是默认情况下最多旋转四个内容进程线程。在 Firefox 中，前 4 个选项卡每个都使用这 4 个进程，其他选项卡使用这些进程中的线程进行调整。进程中的多个选项卡共享内存中已经存在的浏览器引擎，而不是每个选项卡都创建自己的。</p>
+</blockquote>
+<h3 id="浏览器的渲染">浏览器的渲染</h3>
+<ul>
+<li>
+<p>dom解析：当接收到html数据时，主线程开始解析html，转化为dom对象</p>
+<ul>
+<li>解析时遇到css、js、图片等资源时，需要从网络或缓存中获取，主线程会逐一发请求去获取。他会发将这些请求通知给浏览器进程下的网络线程进行资源下载</li>
+<li>构建时，如果遇到css资源时，不会堵塞dom树的构建</li>
+<li>构建时，如果遇到script标签，主线程将立刻停止dom树的构建，转而去执行js代码</li>
+</ul>
+</li>
+<li>
+<p>样式计算：主线程解析 CSS 并确定每个 DOM 节点的计算样式。生成CSSOM，这是关于基于 CSS 选择器将哪种样式应用于每个元素的信息。dom树的解析和css的解析时并行的，但他们同会被js的执行而堵塞。</p>
+</li>
+<li>
+<p>布局：主线程遍历 DOM 和计算样式并创建布局树（Layout Tree），其中包含 xy 坐标和边界框大小等信息。布局树可能与 DOM 树的结构相似，但它只包含与页面上可见的内容相关的信息。如果<code>display: none</code>应用，则该元素不是布局树的一部分。</p>
+</li>
+<li>
+<p>绘制：主线程遍历布局树以创建绘制记录（Paint Records）。绘画记录是对“先背景，后文字，再矩形”的绘画过程的记录。</p>
+</li>
+<li>
+<p>合并：将各个部分分成多层单独进行光栅化并在称为合成器线程的单独线程中合成为一个页面</p>
+<ul>
+<li>
+<p>主线程遍历布局树以创建层树（这部分在 DevTools 性能面板中称为“更新层树”）。如果页面的某些部分应该是单独的层（如滑入式侧边菜单）没有得到，那么您可以通过使用<code>will-change</code>CSS 中的属性来提示浏览器。</p>
+</li>
+<li>
+<p>一旦创建了层树并确定了绘制顺序，主线程就会将该信息提交给合成器线程。合成线程然后光栅化每一层。随后收集称为绘制四边形的切片信息来创建合成器框架，然后通过IPC将合成器框架交给浏览器进程。</p>
+</li>
+<li>
+<p>浏览器进程将它送予GPU将其显示在屏幕上。</p>
+</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>Eg：将文档的结构、每个元素的样式、页面的几何形状和绘制顺序，它如何绘制页面转换为屏幕上的像素称为光栅化。</p>
+</blockquote>
+<blockquote>
+<p>Eg：合成的好处是它是在不涉及主线程的情况下完成的。合成器线程不需要等待样式计算或 JavaScript 执行。</p>
+</blockquote>
+<h3 id="渲染频率">渲染频率</h3>
+<p>日常中的浏览器通常是60帧，即16ms刷新一次。</p>
+<p>也就是每16ms会调度浏览器执行进行一次渲染，在页面呈现的过程中，主线程要做的事情如下：</p>
+<pre><code>dom解析/样式计算 —— 布局 —— 绘制
+</code></pre>
+<blockquote>
+<p>因为合并操作的大部分时间是由合成器线程处理，所以可以暂时忽略</p>
+</blockquote>
+<p>在连续渲染过程中，主线程上则是步骤交替</p>
+<pre><code>dom解析/样式计算 —— 布局 —— 绘制 —— dom解析/样式计算 —— 布局 —— 绘制
+</code></pre>
+<p>而目前的前端项目中大部分的内容都是js，大部分的时间会耗费在js文件的解析上，故上面的过程可以分为下面量大部分</p>
+<pre><code>js文件解析 —— 布局
+</code></pre>
+<p>多次渲染过程时</p>
+<pre><code>js文件解析 —— 布局 —— js文件解析 —— 布局 —— js文件解析 —— 布局
+</code></pre>
+<p>而只有我们布局过程结束后，才会将结果送至GPU进行渲染，如果布局没有计算完，或者没有执行，则GPU没有内容进行渲染。</p>
+<p>如果某一次js文件解释时间过长，等于甚至超过了16ms，那么在本帧内，则没有了布局执行的时间，GPU也将不会渲染结果。所以在一些动画中，当我们的计算过于复杂时，浏览器计算的时间超过了16ms就会导致掉帧的现象。</p>
+<h3 id="事件循环机制">事件循环机制</h3>
+<figure data-type="image" tabindex="1"><img src="http://resource.xiawx.top/20210915180928.png" alt="" loading="lazy"></figure>
+<p>除了主线程会创建一个执行栈外，还会创建一个线程去管理着一个任务队列。</p>
+<blockquote>
+<p>事件循环机制并不是js引擎去制造的，而是他的运行环境所提供的运行机制</p>
+</blockquote>
+<p>执行栈中会一次执行。而当我们发出一些特殊的请求时，则就创建对应的工作线程，例如当检测到setTimeout方法时，将会被定时器线程检测到，它会对他进行管理，在设定的时间结束后，将回调方法堆入任务队列。</p>
+<p>当执行栈中的任务执行完成后，会将任务队列中的方法加入其中。</p>
+<p>所谓的异步任务，便是并没有在一开始就由主线程执行，而是先由其他进程进行管理，之后推入任务队列，最后加入执行栈再由主线程执行。所以，js仍是单线程，尽管有些方法中途由其他线程所管理。</p>
+<blockquote>
+<p>Eg：每一帧就包括了一次画面的更新，但不代表只有一轮事件循环</p>
+</blockquote>
+<h3 id="web-api优化js执行">web api优化js执行</h3>
+<h5 id="requestanimationframe在每次渲染页面前执行">requestAnimationFrame，在每次渲染页面前执行。</h5>
+<p>不论是执行动画还是拆分任务，<code>requestAnimationFrame</code>会比<code>setTimeout</code> 或 <code>setInterval</code>有着更出色的优势。当我们调用了一个setTimeout，此时，该方法将暂时由定时触发器线程所管理，而主线程则继续执行渲染或者js文件。当时间到达时，将该方法推入任务队列，再等执行栈空之后，再推入执行栈进行执行。而在他被推入执行栈并准备执行的时刻，可能在一帧（16ms）的末尾，这时，去执行这个函数便可能由于事件过长从而使得没有时间进行页面渲染。所以，使用requestAnimationFrame，可以准确的在帧的开头去执行函数，可以有更多的时间去处理js。</p>
+<h5 id="requestidlecallback在浏览器的空闲时段内调用的函数排队">requestIdleCallback，在浏览器的空闲时段内调用的函数排队</h5>
+<p>在当前帧中中，如果js计算复杂，没有时间再去执行回调，那么在本次渲染中，将不再执行。</p>
+<p>在使用了requestIdleCallback之后，我们可以将大块任务拆分开来执行</p>
+<p>例如说我们有一个很耗时的功能模块</p>
+<pre><code class="language-javascript">let s = 0
+while (s &lt; 20000) {
+   console.log(1)
+   s++
+}
+</code></pre>
+<p>当然，项目中可能还有其他一些代码逻辑</p>
+<pre><code class="language-javascript">let s = 0
+while (s &lt; 20000) {
+   console.log(1)
+   s++
+}
+console.log(2)
+</code></pre>
+<p>此时，我们可以看到浏览器会一直输出1直到输出够20000个，才会在浏览器中输出2。</p>
+<blockquote>
+<p>当然，如果你的电脑性能足够强大使得你在一瞬间执行完成，请调大执行的次数</p>
+</blockquote>
+<p>所以，对于此处的高耗时任务，我们可以使用requestIdleCallback来进行改写。</p>
+<pre><code class="language-javascript">let s = 0
+function fn() {
+  if (s &lt; 20000) {
+     console.log(1)
+     s++
+     requestIdleCallback(fn)
+  }
+}
+requestIdleCallback(fn)
+console.log(2)
+</code></pre>
+<p>当然，这样使用的前提是requestIdleCallback中的任务的优先级允许你这样做。</p>
+<h5 id="web-worker开启多线程">Web Worker开启多线程</h5>
+<p>在主线程上，不仅要渲染页面，还要执行js，如果js的执行时间过长，就会导致失帧，所以，有些工作我们可以不在主线程上进行。例如纯计算工作。利用<code>web worker</code>可以让浏览器建立一个条新的线程去执行指定内容。</p>
+<blockquote>
+<p>浏览器之所以要使用单线程去执行js，是因为js中涉及的某些操作必须严格的去遵守他的顺序执行，例如dom操作。所以，在开启多线程时，严禁执行dom操作。具体的执行规范可<a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Functions_and_classes_available_to_workers">点击</a>。</p>
+</blockquote>
+<p>通常来说，一些计算性较强的任务我们通常会交由后端去完成，因为前端js的长时间执行会导致堵塞。但随着前端逐渐接近于一个完整的应用，对于计算的需求也逐渐变大，当任务被交由后端后，必然会涉及到http请求，那么该功能便依赖于网络。所以，在现在的业务开发需求中，前端也应承担其能力范围内的计算任务。</p>
+<p>例如在</p>
+<pre><code class="language-javascript">const number = document.querySelector('#number'); // input表单
+const result = document.querySelector('#result'); // div或者其他用于展示的内容的标签
+
+number.addEventListener('change', function ({ target: { value } }) {
+  result.innerHTML = worker(value)
+  console.log('其他业务')
+})
+
+function worker(numbers) {
+  const startTime = new Date().getTime();
+  let sum = 0, i;
+
+  if (numbers === 0) {
+    return 0;
+  }
+
+  for (i = 0; i &lt; numbers; i++) {
+    sum += i;
+  }
+
+  const endTime = new Date().getTime();
+  return (endTime - startTime) / 1000
+}
+</code></pre>
+<p>这段代码中，worker是一个极其耗时的任务，并且在他执行完成后，会输出它的执行时间。</p>
+<p>我们在输入框中输入<code>1000000000</code>，回车后浏览器开始进行计算，几秒钟后，他会输出时间，并且在控制台中打印出<code>其他业务</code>。也就是，这个worker堵塞了当前js的执行。</p>
+<pre><code class="language-javascript">const number = document.querySelector('#number');
+const result = document.querySelector('#result');
+
+const myWorker = new Worker(&quot;worker.js&quot;);
+
+number.addEventListener('change', function ({ target: { value } }) {
+  myWorker.postMessage(value)
+  console.log('其他业务')
+})
+myWorker.onmessage = (e) =&gt; {
+  result.innerHTML = e.data;
+};
+
+// worker.js
+onmessage = ({ data: numbers }) =&gt; {
+  const startTime = new Date().getTime();
+  let sum = 0, i;
+
+  if (numbers === 0) {
+    return 0;
+  }
+
+  for (i = 0; i &lt; numbers; i++) {
+    sum += i;
+  }
+
+  const endTime = new Date().getTime();
+  postMessage((endTime - startTime) / 1000)
+};
+</code></pre>
+<p>使用worker线程后，我们便可以将此任务使用其他线程去执行，主线程则继续执行已有业务。</p>
+<h5 id="shared-workers">Shared Workers</h5>
+<p><code>SharedWorker</code> 接口代表一种特定类型的 worker，可以从几个浏览上下文中<em>访问</em>，例如几个窗口、iframe 或其他 worker。例如，在多页面应用中，我们仍可以让不同的html文件同时调用一个worker脚本来执行计算。</p>
+<pre><code class="language-javascript">// 1.html / 2.html
+const number = document.querySelector('#number');
+const result = document.querySelector('#result');
+
+const myWorker = new SharedWorker(&quot;worker.js&quot;).port;
+
+number.addEventListener('change', function ({ target: { value } }) {
+  myWorker.postMessage(value)
+  console.log('其他业务')
+})
+
+myWorker.onmessage = (e) =&gt; {
+  result.innerHTML = e.data;
+};
+// worker.js
+onconnect = (e) =&gt; {
+  const port = e.ports[0];
+
+  port.addEventListener('message', function ({ data: numbers }) {
+    const startTime = new Date().getTime();
+    let sum = 0, i;
+
+    if (numbers === 0) {
+      return 0;
+    }
+
+    for (i = 0; i &lt; numbers; i++) {
+      sum += i;
+    }
+
+    const endTime = new Date().getTime();
+    port.postMessage((endTime - startTime) / 1000)
+  });
+
+  port.start();
+};
+
+</code></pre>
+<blockquote>
+<p>在多页面可以使用同一个js文件后，我们也可以利用此特性进行页面之间的通信</p>
+</blockquote>
+<p>此外<code>web api</code>还提供了<code>Service Workers</code>、<code>Audio workers</code>来支持不同业务情况的<code>workers</code>。</p>
+<blockquote>
+<p>参考文章：</p>
+<p>https://developers.google.com/web/updates/2018/09/inside-browser-part3#compositing</p>
+<p>https://www.html5rocks.com/en/tutorials/internals/howbrowserswork/#The_rendering_engine</p>
+<p>https://yeefun.github.io/event-loop-in-depth/</p>
+<p>https://www.freecodecamp.org/news/web-workers-in-action-2c9ff33be266/</p>
+</blockquote>
+
+          </div>
+          
+          <div class="tag-container">
+            
+            <a href="http://xiawx.top/tag/aJjMPrl2v/" class="tag">
+              blog
+            </a>
+            
+          </div>
+          
+
+          <!-- id 将作为查询条件 -->
+          <!-- <span id="浏览器的渲染原理及性能探索" class="leancloud_visitors" data-flag-title="Your Article Title">
+            <em class="post-meta-item-text">阅读量 </em>
+            <i class="leancloud-visitors-count">1000000</i>
+          </span> -->
+          <!-- 添加评论所需 -->
+          <div id="vcomments"></div>
+
+          
+          <div class="next-post">
+            <div class="next">下一篇</div>
+            <a href="http://xiawx.top/post/3IMlVDhnC/">
+              <h3 class="post-title">
+                React函数组件的应用（一）useState、useRef 
+              </h3>
+            </a>
+          </div>
+          
+
+          
+          
+
+          
+          <div id="disqus_thread" data-aos="fade-in"></div>
+          
+          
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+  
+
+  
+    <script src="https://unpkg.com/disqusjs@1.1/dist/disqus.js"></script>
+    <script>
+
+    var options = {
+      shortname: '',
+      apikey: 'ZUU80KJ3uhRlLYoe6rrfD3x8c2m2hKUCjIilbaTOItbVIODeJ3k6WqwaFiVcdfaU',
+    }
+    if ('') {
+      options.api = ''
+    }
+    var dsqjs = new DisqusJS(options)
+
+    </script>
+  
+
+
+
+
+
+  <!-- 添加评论所需 -->
+  <script>
+    var valine = new Valine();
+    valine.init({
+      el: '#vcomments',
+      appId: 'wsDl3brWkUlHBKaNxb21veD5-gzGzoHsz',
+      appKey: 'VmdAqVf9EYbFvHrSBU4dXhNh',
+      // visitor: true // 阅读量统计
+      // 设置Bilibili表情包地址
+      emojiCDN: '//i0.hdslb.com/bfs/emote/',
+      // 表情title和图片映射
+      emojiMaps: {
+        "tv_doge": "6ea59c827c414b4a2955fe79e0f6fd3dcd515e24.png",
+        "tv_亲亲": "a8111ad55953ef5e3be3327ef94eb4a39d535d06.png",
+        "tv_偷笑": "bb690d4107620f1c15cff29509db529a73aee261.png",
+        "tv_再见": "180129b8ea851044ce71caf55cc8ce44bd4a4fc8.png",
+        "tv_冷漠": "b9cbc755c2b3ee43be07ca13de84e5b699a3f101.png",
+        "tv_发怒": "34ba3cd204d5b05fec70ce08fa9fa0dd612409ff.png",
+        "tv_发财": "34db290afd2963723c6eb3c4560667db7253a21a.png",
+        "tv_可爱": "9e55fd9b500ac4b96613539f1ce2f9499e314ed9.png",
+        "tv_吐血": "09dd16a7aa59b77baa1155d47484409624470c77.png",
+        "tv_呆": "fe1179ebaa191569b0d31cecafe7a2cd1c951c9d.png",
+        "tv_呕吐": "9f996894a39e282ccf5e66856af49483f81870f3.png",
+        "tv_困": "241ee304e44c0af029adceb294399391e4737ef2.png",
+        "tv_坏笑": "1f0b87f731a671079842116e0991c91c2c88645a.png",
+        "tv_大佬": "093c1e2c490161aca397afc45573c877cdead616.png",
+        "tv_大哭": "23269aeb35f99daee28dda129676f6e9ea87934f.png",
+        "tv_委屈": "d04dba7b5465779e9755d2ab6f0a897b9b33bb77.png",
+        "tv_害羞": "a37683fb5642fa3ddfc7f4e5525fd13e42a2bdb1.png",
+        "tv_尴尬": "7cfa62dafc59798a3d3fb262d421eeeff166cfa4.png",
+        "tv_微笑": "70dc5c7b56f93eb61bddba11e28fb1d18fddcd4c.png",
+        "tv_思考": "90cf159733e558137ed20aa04d09964436f618a1.png",
+        "tv_惊吓": "0d15c7e2ee58e935adc6a7193ee042388adc22af.png",
+        // ... 更多表情
+      }
+    })
+  </script>
+</body>
+
+</html>
